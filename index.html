@@ -1,0 +1,3245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournament Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #04295d;
+      --surface:      #083a83;
+      --surface-2:    #0c4fb3;
+      --border:       #2a6ac1;
+      --accent:       #1c7ed6;
+      --accent-hover: #1a6fc3;
+      --text:         #e8f4ff;
+      --muted:        #a9c8e7;
+      --danger:       #ef4444;
+      --success:      #22c55e;
+      --warning:      #f59e0b;
+    }
+
+    .brand-logo { height: 2rem; width: auto; margin-right: 0.7rem; border-radius: 0.3rem; }
+
+    body { font-family: 'Roboto', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; min-height: 3.25rem; display: flex; align-items: stretch; justify-content: center; position: sticky; top: 0; z-index: 100; }
+    #user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--muted); }
+    .header-nav { display: flex; align-items: stretch; gap: 0; }
+    .header-nav a { display: flex; align-items: center; color: var(--muted); text-decoration: none; font-size: 1.05rem; font-weight: 500; padding: 0 1.1rem; border-radius: 0; transition: color 0.15s, background 0.15s; }
+    .header-nav a:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+    header > div:last-child { position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); }
+
+    /* ── Site banner (logo below header) ── */
+    #site-banner { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 1rem; max-width: 960px; margin: 0 auto; }
+    #site-banner img { height: 90px; width: auto; display: block; flex-shrink: 0; }
+    #site-banner-text { font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 1.35rem; line-height: 1.05; text-transform: uppercase; color: var(--text); letter-spacing: 0; }
+    #site-banner-text .light { font-weight: 400; }
+
+    /* ── Layout ── */
+    main { max-width: 960px; margin: 0.5rem auto 2rem; padding: 0 1rem; display: grid; gap: 1.5rem; }
+
+    /* ── Cards ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; }
+    .card h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1.1rem; border-radius: 0.5rem; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: filter 0.15s, background 0.15s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline  { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { background: var(--border); }
+    .btn-danger   { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+    .btn-danger:hover { filter: brightness(1.2); }
+    .btn-warning  { background: #78350f; color: #fcd34d; border: 1px solid #92400e; }
+    .btn-warning:hover { filter: brightness(1.2); }
+    .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.78rem; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+    /* ── Forms ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; font-weight: 500; }
+    input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem 0.75rem; color: var(--text); font-size: 0.875rem; }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    small { color: var(--muted); font-size: 0.73rem; margin-top: 0.25rem; display: block; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 0.5rem 0.75rem; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.025); }
+    .empty-row td { color: var(--muted); text-align: center; padding: 2rem; }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 600; }
+    .badge-pending  { background: #1e3a5f; color: #60a5fa; }
+    .badge-underway { background: #14532d; color: #4ade80; }
+    .badge-complete { background: #374151; color: #9ca3af; }
+    .badge-active   { background: #14532d; color: #4ade80; }
+    .badge-inactive { background: #374151; color: #9ca3af; }
+
+    /* ── Dropdown ── */
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-btn { background: var(--accent); color: #fff; padding: 0.5rem 1.1rem; border-radius: 0.5rem; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
+    .dropdown-btn:hover { background: var(--accent-hover); }
+    .dropdown-menu { position: absolute; top: 100%; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); min-width: 180px; z-index: 1000; display: none; margin-top: 0.25rem; }
+    .dropdown-menu.active { display: block; }
+    .dropdown-menu a { display: block; padding: 0.75rem 1rem; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background: var(--surface-2); }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; gap: 0; overflow: hidden; }
+    .tab { padding: 0.65rem 1.25rem; cursor: pointer; font-size: 0.875rem; border-bottom: 2px solid transparent; margin-bottom: -1px; color: var(--muted); white-space: nowrap; transition: color 0.15s; }
+    .tab:hover { color: var(--text); }
+    .tab.active { border-bottom-color: var(--accent); color: var(--text); font-weight: 500; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block !important; }
+
+    /* ── Status messages ── */
+    .status-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; min-height: 1.5rem; }
+    .status-msg { font-size: 0.8rem; color: var(--muted); }
+    .status-msg.error   { color: var(--danger); }
+    .status-msg.ok      { color: var(--success); }
+    .status-msg.loading { color: var(--warning); }
+
+    /* ── Actions row ── */
+    .actions-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .footer-row  { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+    /* ── Login screen ── */
+    #login-section { padding: 0; }
+    #public-content-row { display: grid; grid-template-columns: 1fr 290px; gap: 1.5rem; align-items: start; }
+    @media (max-width: 720px) { #public-content-row { grid-template-columns: 1fr; } }
+    .sidebar-item { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    .sidebar-item:last-child { border-bottom: none; }
+
+    /* ── News ── */
+    .news-carousel-wrap { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 2rem; margin-bottom: 1.5rem; text-align: left; height: 280px; background-size: cover; background-position: center; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; }
+    .news-carousel-wrap.has-bg::before { content: ''; position: absolute; inset: 0; background: rgba(4,41,93,0.80); border-radius: 0.75rem; }
+    .carousel-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 50%; width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: background 0.15s; z-index: 2; }
+    .carousel-nav-btn:hover { background: rgba(255,255,255,0.25); }
+    .carousel-nav-prev { left: 0.5rem; }
+    .carousel-nav-next { right: 0.5rem; }
+    .carousel-inner { padding: 0 2.75rem; position: relative; z-index: 2; }
+    .carousel-post-date { font-size: 0.75rem; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; }
+    .carousel-post-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.6rem; line-height: 1.3; color: #fff; }
+    .carousel-post-body { color: rgba(255,255,255,0.75); font-size: 0.9rem; line-height: 1.6; }
+    .carousel-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; position: relative; z-index: 2; }
+    .carousel-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: background 0.15s; border: none; padding: 0; }
+    .carousel-dot.active { background: #fff; }
+    .news-section-heading { font-size: 0.95rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+    .news-cards-grid { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; }
+    .news-card-preview { display: block; padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .news-card-preview:last-child { border-bottom: none; }
+    .news-card-preview:hover { background: var(--surface-2); }
+    .news-card-date { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.35rem; }
+    .news-card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .news-card-body { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .news-post-full { background: var(--bg); border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border); }
+    .news-post-full:last-child { margin-bottom: 0; }
+
+    /* ── Participant panel header ── */
+    .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .panel-header h3 { font-size: 0.95rem; font-weight: 600; }
+
+    .hidden { display: none !important; }
+
+    /* ── Footer ── */
+    footer { background: var(--surface); border-top: 1px solid var(--border); margin-top: 3rem; padding: 2rem 1rem; text-align: center; }
+    .social-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+    .social-link { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.5rem 0.9rem; border-radius: 0.5rem; border: 1px solid var(--border); transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .social-link:hover { color: var(--text); border-color: var(--accent); background: rgba(28,126,214,0.1); }
+    .social-link svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+    /* ── Participant section ── */
+    #participant-section { text-align: center; padding: 3rem 2rem; }
+    #participant-section h2 { font-size: 1.4rem; margin-bottom: 1rem; }
+    #participant-section input { width: 100%; max-width: 300px; padding: 0.75rem; margin-bottom: 0.5rem; }
+
+    /* ── Bulk textarea ── */
+    #bulk-names { font-family: monospace; resize: vertical; min-height: 100px; }
+
+    /* ── Team avatar ── */
+    .team-avatar-wrap { text-align: center; flex-shrink: 0; }
+    .team-avatar { width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto; }
+    .team-avatar-placeholder { width: 6rem; height: 6rem; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: #fff; margin: 0 auto; }
+    .avatar-upload-label { display: inline-block; margin-top: 0.5rem; cursor: pointer; font-size: 0.78rem; color: var(--muted); text-decoration: underline; }
+    .avatar-upload-label:hover { color: var(--text); }
+
+    /* ── Event detail panel ── */
+    .event-detail-panel { border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; }
+    .event-detail-panel h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.6rem; }
+    .team-chip { display: inline-block; background: var(--surface-2); border-radius: 0.25rem; padding: 0.2rem 0.5rem; font-size: 0.78rem; }
+    .event-team-block { background: var(--bg); border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header>
+  <div id="header-logo" style="position:absolute; left:2rem; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:0.6rem; opacity:0; pointer-events:none; transition:opacity 0.2s;">
+    <img src="icl-logo-white.png" style="height:2.5rem; width:auto;" alt="ICL" />
+  </div>
+  <nav class="header-nav">
+    <a href="news.html">News</a>
+    <a href="events.html">Events</a>
+    <a href="matches.html">Matches</a>
+  </nav>
+  <div style="display:flex; align-items:center; gap:1rem;">
+    <div id="user-info" class="hidden" style="display:flex; align-items:center; gap:0.75rem; font-size:0.875rem; color:var(--muted);">
+      <span id="username-display"></span>
+      <button class="btn btn-outline btn-sm" id="logout-btn">Log out</button>
+    </div>
+    <div id="participant-info" class="hidden" style="display:flex; align-items:center; gap:0.75rem; font-size:0.875rem; color:var(--muted);">
+      <span id="participant-name-display"></span>
+      <button class="btn btn-outline btn-sm" onclick="participantLogout()">Log out</button>
+    </div>
+    <div id="login-menu" class="dropdown">
+      <button class="dropdown-btn" id="login-dropdown-btn">Login</button>
+      <div class="dropdown-menu" id="login-dropdown-menu">
+        <a href="#" id="manager-login-btn">Manager Login</a>
+        <a href="#" id="participant-login-btn">Participant Login</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="site-banner">
+  <img src="icl-logo-white.png" alt="ICL Logo" />
+  <div id="site-banner-text">INSURGENCY<br><span class="light">COMMUNITY</span><br><span style="display:block; text-align:center; letter-spacing:0.18em;">LEAGUE</span></div>
+</div>
+
+<main>
+
+  <!-- ── LOGIN ────────────────────────────────────────────────────────────── -->
+  <section id="login-section">
+
+    <!-- News carousel — rendered by JS when posts exist -->
+    <div id="news-carousel-wrap" class="news-carousel-wrap hidden">
+      <button class="carousel-nav-btn carousel-nav-prev" onclick="prevCarousel()">&#8249;</button>
+      <div class="carousel-inner">
+        <div id="news-carousel-slide"></div>
+      </div>
+      <button class="carousel-nav-btn carousel-nav-next" onclick="nextCarousel()">&#8250;</button>
+      <div id="carousel-dots" class="carousel-dots"></div>
+    </div>
+
+    <!-- Two-column: news cards + sidebar -->
+    <div id="public-content-row">
+
+      <!-- Left: news cards -->
+      <div>
+        <div id="news-cards-wrap" class="hidden">
+          <p class="news-section-heading">Recent News</p>
+          <div id="news-cards-grid" class="news-cards-grid"></div>
+          <div id="news-view-more-wrap" style="text-align:center; margin-top:1.25rem; display:none;">
+            <button class="btn btn-outline" onclick="showAllNewsCards()">View More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div id="public-sidebar">
+        <p class="news-section-heading" style="visibility:hidden;" aria-hidden="true">.</p>
+        <div class="card" style="margin-bottom:1rem;">
+          <h2>Upcoming Events</h2>
+          <div id="sidebar-upcoming-list">
+            <p style="color:var(--muted); font-size:0.82rem;">No upcoming events.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Recent Results</h2>
+          <div id="sidebar-matches-list">
+            <p style="color:var(--muted); font-size:0.82rem;">No results yet.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /#public-content-row -->
+
+  </section>
+
+  <!-- ── PARTICIPANT LOGIN ────────────────────────────────────────────────── -->
+  <section id="participant-section" class="hidden">
+    <h2>Participant Portal</h2>
+    <p style="margin-bottom:2rem; color:var(--muted);">Sign in with your Challonge account to create and manage your team.</p>
+    <div style="background:var(--surface); padding:2rem; border-radius:0.75rem; display:inline-block; border:1px solid var(--border);">
+      <button class="btn btn-primary" id="participant-challonge-login" style="padding:0.75rem 2rem; font-size:1rem;">Sign In with Challonge</button>
+      <p id="participant-login-error" style="margin-top:1rem; color:var(--danger); font-size:0.875rem;"></p>
+    </div>
+  </section>
+
+  <!-- ── APP (hidden until logged in) ─────────────────────────────────────── -->
+  <div id="app" class="hidden">
+
+    <div class="dashboard-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <div>
+        <h2 style="margin:0; font-size:1.2rem;">Dashboard</h2>
+        <p style="margin:0.25rem 0 0; color:var(--muted);">Your tournaments are listed below.</p>
+      </div>
+      <button id="dashboard-create-btn" class="btn btn-primary">+ New Tournament</button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="tournaments">My Tournaments</div>
+      <div class="tab hidden" data-tab="teams">Teams</div>
+      <div class="tab" data-tab="create">Create Tournament</div>
+      <div class="tab" data-tab="participants">Participants</div>
+      <div class="tab" data-tab="scores">Report Scores</div>
+      <div class="tab" data-tab="news">News</div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════════╗
+         ║  TAB 1 — TOURNAMENT LIST                                        ║
+         ╚══════════════════════════════════════════════════════════════════╝ -->
+    <div class="tab-panel active" id="tab-tournaments">
+      <div class="status-bar">
+        <span class="status-msg" id="list-status"></span>
+        <button class="btn btn-outline btn-sm" id="refresh-btn">↻ Refresh</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Format</th><th>State</th><th>Players</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tournaments-tbody">
+              <tr class="empty-row"><td colspan="5">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════════╗
+         ║  TAB 2 — TEAMS                                                   ║
+         ╚══════════════════════════════════════════════════════════════════╝ -->
+    <div class="tab-panel" id="tab-teams">
+
+      <!-- Create new team -->
+      <div class="card" style="margin-bottom:1rem;">
+        <h2>Create Team</h2>
+        <div class="form-row">
+          <div class="field">
+            <label for="team-name">Team Name *</label>
+            <input type="text" id="team-name" placeholder="e.g. Alpha Squad" />
+          </div>
+          <div class="field">
+            <label for="team-color">Team Color (optional)</label>
+            <input type="color" id="team-color" value="#1c7ed6" />
+          </div>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="create-team-btn">Create Team</button>
+          <span class="status-msg" id="create-team-status"></span>
+        </div>
+      </div>
+
+      <!-- Teams list -->
+      <div class="card">
+        <div class="panel-header">
+          <h3>Your Teams <span id="teams-count" style="color:var(--muted); font-weight:400;"></span></h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Team</th><th>Color</th><th>Players</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="teams-tbody">
+              <tr class="empty-row"><td colspan="4">No teams yet. Create one above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Team roster editor -->
+      <div class="card" style="margin-top:1rem;">
+        <h2 id="roster-header">Select a team to manage roster</h2>
+        <div class="form-row">
+          <div class="field">
+            <label for="team-select">Select Team</label>
+            <select id="team-select">
+              <option value="">— choose a team —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="player-name">Player Name</label>
+            <input type="text" id="player-name" placeholder="e.g. John Doe" />
+          </div>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="add-player-btn" disabled>Add Player to Team</button>
+          <span class="status-msg" id="player-status"></span>
+        </div>
+        <div id="roster-list" style="margin-top:1rem;">
+          <!-- Populated when team is selected -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════════╗
+         ║  TAB 3 — CREATE TOURNAMENT                                       ║
+         ╚══════════════════════════════════════════════════════════════════╝ -->
+    <div class="tab-panel" id="tab-create">
+      <div class="card">
+        <h2>New Tournament</h2>
+        <div class="form-row">
+          <div class="field">
+            <label for="t-name">Tournament Name *</label>
+            <input type="text" id="t-name" placeholder="e.g. Summer Cup 2026" />
+          </div>
+          <div class="field">
+            <label for="t-url">URL Slug</label>
+            <input type="text" id="t-url" placeholder="e.g. summer-cup-2026 (optional)" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="t-type">Format</label>
+            <select id="t-type">
+              <option value="single elimination">Single Elimination</option>
+              <option value="double elimination">Double Elimination</option>
+              <option value="round robin">Round Robin</option>
+              <option value="swiss">Swiss</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="t-private">Visibility</label>
+            <select id="t-private">
+              <option value="false">Public</option>
+              <option value="true">Private</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="t-desc">Description</label>
+          <textarea id="t-desc" rows="3" placeholder="Optional description…"></textarea>
+        </div>
+        
+        <hr style="margin: 1.5rem 0;" />
+        
+        <div class="field" style="margin-bottom: 1.5rem;">
+          <label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer; font-weight:500; margin-bottom:0;">
+            <input type="checkbox" id="t-two-stage" style="margin:0; width:18px; height:18px; cursor:pointer;" />
+            <span>Create a two-stage tournament</span>
+          </label>
+          <small style="margin-top:0.5rem; display:block;">Stage 1 (qualifying), then Stage 2 (finals) with advancing teams</small>
+        </div>
+
+        <!-- Two-stage configuration (hidden by default) -->
+        <div id="two-stage-config" style="display:none; background:var(--surface-2); padding:1.5rem; border-radius:0.75rem; margin-bottom:1.5rem; border:1px solid var(--border);">
+          <h3 style="font-size:0.95rem; margin-bottom:1rem; color:var(--muted); text-transform:uppercase;">Stage 2 Configuration</h3>
+          
+          <div class="form-row">
+            <div class="field">
+              <label for="t-stage2-name">Stage 2 Name *</label>
+              <input type="text" id="t-stage2-name" placeholder="e.g. Finals, Playoffs" />
+            </div>
+            <div class="field">
+              <label for="t-stage2-format">Stage 2 Format</label>
+              <select id="t-stage2-format">
+                <option value="single elimination">Single Elimination</option>
+                <option value="double elimination">Double Elimination</option>
+                <option value="round robin">Round Robin</option>
+                <option value="swiss">Swiss</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="t-advancing">Number of teams advancing to Stage 2 *</label>
+            <input type="number" id="t-advancing" placeholder="e.g. 4, 8" min="1" max="32" />
+            <small>How many top teams from Stage 1 advance to Stage 2</small>
+          </div>
+        </div>
+
+        <div class="footer-row">
+          <button class="btn btn-primary" id="create-btn">Create Tournament</button>
+          <span class="status-msg" id="create-status"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════════╗
+         ║  TAB 4 — PARTICIPANTS                                            ║
+         ╚══════════════════════════════════════════════════════════════════╝ -->
+    <div class="tab-panel" id="tab-participants">
+
+      <!-- Tournament picker -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="field" style="margin-bottom:0;">
+          <label for="p-tournament-select">Select Tournament</label>
+          <select id="p-tournament-select">
+            <option value="">— choose a tournament —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Participant list -->
+      <div class="card" id="participants-list-card">
+        <div class="panel-header">
+          <h3>Current Participants <span id="participant-count" style="color:var(--muted); font-weight:400;"></span></h3>
+          <div class="actions-row">
+            <button class="btn btn-warning btn-sm" id="randomize-btn" disabled>🔀 Randomize Seeds</button>
+            <button class="btn btn-danger btn-sm" id="clear-all-btn" disabled>🗑 Clear All</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Name</th><th>Captain</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="participants-tbody">
+              <tr class="empty-row"><td colspan="5">Select a tournament above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:0.75rem;">
+          <span class="status-msg" id="plist-status"></span>
+        </div>
+      </div>
+
+      <!-- Pending team signups -->
+      <div class="card" id="pending-signups-card" style="margin-top:1rem; display:none;">
+        <div class="panel-header">
+          <h3>Pending Team Signups</h3>
+          <div class="actions-row">
+            <button class="btn btn-primary btn-sm" id="confirm-all-signups-btn">Add All to Tournament</button>
+          </div>
+        </div>
+        <p style="color:var(--muted); font-size:0.82rem; margin-bottom:0.75rem;">These teams have signed up via the participant portal. Add them to officially register on Challonge.</p>
+        <div id="pending-signups-list"></div>
+        <span class="status-msg" id="pending-signups-status" style="margin-top:0.5rem; display:block;"></span>
+      </div>
+
+      <!-- Add single participant -->
+      <div class="card" style="margin-top:1rem;">
+        <h2>Add Participant</h2>
+        <div class="form-row-3">
+          <div class="field">
+            <label for="p-name">Display Name *</label>
+            <input type="text" id="p-name" placeholder="e.g. Player One" />
+          </div>
+          <div class="field">
+            <label for="p-seed">Seed</label>
+            <input type="number" id="p-seed" placeholder="e.g. 1 (optional)" min="1" />
+          </div>
+          <div class="field">
+            <label for="p-email">Email / Username</label>
+            <input type="text" id="p-email" placeholder="optional — sends invite" />
+            <small>Sends a Challonge invite if filled in.</small>
+          </div>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="add-participant-btn" disabled>Add Participant</button>
+          <span class="status-msg" id="padd-status"></span>
+        </div>
+      </div>
+
+      <!-- Bulk add participants -->
+      <div class="card" style="margin-top:1rem;">
+        <h2>Bulk Add Participants</h2>
+        <div class="field">
+          <label for="bulk-names">One name per line</label>
+          <textarea id="bulk-names" placeholder="Alice&#10;Bob&#10;Carol&#10;Dave"></textarea>
+          <small>Names will be added in order. Seeds are assigned automatically (1, 2, 3…).</small>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="bulk-add-btn" disabled>Bulk Add</button>
+          <span class="status-msg" id="pbulk-status"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════════╗
+         ║  TAB 5 — REPORT SCORES                                           ║
+         ╚══════════════════════════════════════════════════════════════════╝ -->
+    <div class="tab-panel" id="tab-scores">
+      <div class="card">
+        <h2>Report Match Score</h2>
+        <div class="field">
+          <label for="score-tournament-select">Tournament</label>
+          <select id="score-tournament-select">
+            <option value="">— choose a tournament —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="score-match-select">Match</label>
+          <select id="score-match-select" disabled>
+            <option value="">Select a tournament first…</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="score-csv">Scores (CSV)</label>
+            <input type="text" id="score-csv" placeholder="e.g. 3-1,2-3,3-2" />
+            <small>Format: p1score-p2score per set, comma-separated</small>
+          </div>
+          <div class="field">
+            <label for="score-winner">Winner</label>
+            <select id="score-winner" disabled>
+              <option value="">Select a match first…</option>
+            </select>
+          </div>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="report-btn" disabled>Report Score</button>
+          <span class="status-msg" id="score-status"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════════╗
+         ║  TAB 6 — NEWS                                                    ║
+         ╚══════════════════════════════════════════════════════════════════╝ -->
+    <div class="tab-panel" id="tab-news">
+
+      <!-- Create post -->
+      <div class="card" style="margin-bottom:1rem;">
+        <h2>Create News Post</h2>
+        <div class="field">
+          <label for="news-title">Title *</label>
+          <input type="text" id="news-title" placeholder="Post title" />
+        </div>
+        <div class="field">
+          <label for="news-description">Brief Description</label>
+          <input type="text" id="news-description" placeholder="One or two sentences shown on the main page and under the post title" />
+        </div>
+        <div class="field">
+          <label for="news-body">Content *</label>
+          <textarea id="news-body" rows="6" placeholder="Write your post here…" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:0.5rem; padding:0.5rem 0.75rem; color:var(--text); font-size:0.875rem; resize:vertical;"></textarea>
+        </div>
+        <div class="form-row" style="margin-top:0.25rem;">
+          <div class="field">
+            <label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer; font-weight:500; margin-bottom:0;">
+              <input type="checkbox" id="news-featured" style="margin:0; width:18px; height:18px; cursor:pointer;" />
+              <span>Feature in carousel</span>
+            </label>
+            <small>Featured posts appear in the homepage carousel.</small>
+          </div>
+          <div class="field">
+            <label for="news-bg-input">Carousel background image</label>
+            <input type="file" id="news-bg-input" accept="image/*" style="background:none; padding:0.25rem 0; border:none; font-size:0.82rem; color:var(--muted);" />
+            <small>Optional — shown behind the post in the carousel.</small>
+          </div>
+        </div>
+        <div id="news-bg-preview" style="display:none; margin-bottom:0.75rem;">
+          <img id="news-bg-preview-img" style="height:80px; border-radius:0.4rem; object-fit:cover; border:1px solid var(--border);" />
+          <button type="button" class="btn btn-outline btn-sm" style="margin-left:0.5rem; vertical-align:middle;" onclick="clearNewsBgPreview()">Remove</button>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="publish-news-btn">Publish</button>
+          <span class="status-msg" id="news-status"></span>
+        </div>
+      </div>
+
+      <!-- Existing posts -->
+      <div class="card">
+        <h2>Published Posts</h2>
+        <div id="news-posts-list">
+          <p style="color:var(--muted); padding:1rem 0;">No posts yet.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /#app -->
+</main>
+
+<!-- ── PARTICIPANT APP (hidden until participant logged in) ──────────────── -->
+<div id="participant-app" class="hidden">
+  <main style="max-width: 960px; margin: 2rem auto; padding: 0 1rem; display: grid; gap: 1.5rem;">
+
+    <div class="dashboard-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <div>
+        <h2 style="margin:0; font-size:1.2rem;">Participant Dashboard</h2>
+        <p id="participant-team-display" style="margin:0.25rem 0 0; color:var(--muted);"></p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="p-events">Available Events</div>
+      <div class="tab" data-tab="p-team">My Team</div>
+      <div class="tab" data-tab="p-signups">My Sign-ups</div>
+    </div>
+
+    <!-- ── Available Events Tab ─────────────────────────────────────────── -->
+    <div class="tab-panel active" id="tab-p-events">
+      <p id="p-events-status" class="status-msg" style="margin-bottom:0.75rem; min-height:1.25rem;"></p>
+      <div id="p-events-list">
+        <div class="card"><p style="color:var(--muted); text-align:center; padding:2rem;">No events available yet.</p></div>
+      </div>
+    </div>
+
+    <!-- ── My Team Tab ──────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-p-team">
+
+      <!-- Team Profile -->
+      <div class="card" style="margin-bottom:1rem;">
+        <h2>Team Profile</h2>
+        <div style="display:flex; gap:1.5rem; align-items:flex-start; flex-wrap:wrap;">
+          <div class="team-avatar-wrap">
+            <div id="p-team-avatar-display" class="team-avatar-placeholder">?</div>
+            <label for="p-team-avatar-input" class="avatar-upload-label">Upload Photo</label>
+            <input type="file" id="p-team-avatar-input" accept="image/*" style="display:none;" />
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <div class="field">
+              <label for="p-team-name-input">Team Name</label>
+              <input type="text" id="p-team-name-input" placeholder="Your team name" />
+            </div>
+            <div class="field">
+              <label for="p-team-bio-input">About Your Team</label>
+              <textarea id="p-team-bio-input" rows="3" placeholder="Tell people about your team, your playstyle, where you're from…" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:0.5rem; padding:0.5rem 0.75rem; color:var(--text); font-size:0.875rem; resize:vertical;"></textarea>
+            </div>
+            <div class="footer-row" style="margin-top:0.75rem;">
+              <button class="btn btn-primary" id="p-save-team-btn">Save</button>
+              <span class="status-msg" id="p-team-status"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Teammate -->
+      <div class="card" style="margin-bottom:1rem;">
+        <h2>Add Teammate</h2>
+        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">Players are saved to your team roster and carry over between events.</p>
+        <div class="form-row">
+          <div class="field">
+            <label for="p-player-name">Challonge Username</label>
+            <input type="text" id="p-player-name" placeholder="e.g. johndoe123" />
+            <small>Your teammate's Challonge account username</small>
+          </div>
+          <div class="field">
+            <label for="p-player-role">Role (optional)</label>
+            <input type="text" id="p-player-role" placeholder="e.g. IGL, Fragger" />
+          </div>
+        </div>
+        <div class="footer-row">
+          <button class="btn btn-primary" id="p-add-player-btn">Add to Roster</button>
+          <span class="status-msg" id="p-player-status"></span>
+        </div>
+      </div>
+
+      <!-- Roster -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="panel-header">
+          <h3>Team Roster <span id="p-roster-count" style="color:var(--muted); font-weight:400;"></span></h3>
+        </div>
+        <ul id="p-roster-list" style="list-style:none; padding:0; margin:0.75rem 0 0;"></ul>
+      </div>
+
+      <!-- Match History -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="panel-header">
+          <h3>Match History</h3>
+          <button class="btn btn-outline btn-sm" id="p-load-matches-btn">Load Matches</button>
+        </div>
+        <div id="p-match-history" style="margin-top:0.75rem;">
+          <p style="color:var(--muted); text-align:center; padding:1rem;">Click "Load Matches" to see individual match results across your signed-up events.</p>
+        </div>
+      </div>
+
+      <!-- Event Results -->
+      <div class="card">
+        <div class="panel-header">
+          <h3>Event Results</h3>
+          <button class="btn btn-outline btn-sm" id="p-load-results-btn">Load Results</button>
+        </div>
+        <div id="p-event-results" style="margin-top:0.75rem;">
+          <p style="color:var(--muted); text-align:center; padding:1rem;">Click "Load Results" to see your finish positions in completed events.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── My Sign-ups Tab ──────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-p-signups">
+      <div class="card">
+        <h2>Registered Events</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Event</th><th>Status</th><th>Teams</th><th>Action</th></tr>
+            </thead>
+            <tbody id="p-signups-tbody">
+              <tr class="empty-row"><td colspan="4">You haven't signed up for any events yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── TEAM PAGE MODAL ────────────────────────────────────────────────────── -->
+<div id="team-page-modal" class="hidden" style="position:fixed;inset:0;background:rgba(2,18,45,0.85);z-index:2000;overflow-y:auto;padding:2rem 1rem;">
+  <div style="max-width:720px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1.5rem;">
+    <div id="team-page-modal-content"><p style="color:var(--muted);">Loading…</p></div>
+  </div>
+</div>
+
+<!-- ── ROSTER EDITOR MODAL ───────────────────────────────────────────────── -->
+<div id="roster-edit-modal" class="hidden" style="position:fixed;inset:0;background:rgba(2,18,45,0.85);z-index:2000;overflow-y:auto;padding:2rem 1rem;">
+  <div style="max-width:560px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1.5rem;">
+    <div id="roster-edit-content"></div>
+  </div>
+</div>
+
+<!-- ── IMAGE CROP MODAL ──────────────────────────────────────────────────────── -->
+<div id="crop-modal" class="hidden" style="position:fixed;inset:0;background:rgba(2,18,45,0.92);z-index:3000;display:flex;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1.5rem;width:100%;max-width:700px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+      <h3 style="margin:0;font-size:1rem;font-weight:600;">Crop Background Image</h3>
+      <button onclick="closeCropModal()" class="btn btn-outline btn-sm">✕ Cancel</button>
+    </div>
+    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:0.75rem;">Drag to reposition · Use the slider to zoom</p>
+    <div id="crop-container" style="position:relative;width:100%;aspect-ratio:960/280;overflow:hidden;border-radius:0.5rem;cursor:grab;background:#000;user-select:none;touch-action:none;">
+      <canvas id="crop-canvas" style="display:block;width:100%;height:100%;"></canvas>
+    </div>
+    <div style="margin:1rem 0 1.25rem;">
+      <label style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Zoom</label>
+      <input type="range" id="crop-zoom" style="width:100%;" />
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <button class="btn btn-primary" onclick="applyCrop()">Apply</button>
+      <button class="btn btn-outline" onclick="closeCropModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────────── -->
+<script type="module">
+  import { ChallongeAuth, Tournaments, Participants, Matches, User } from './challonge-api.js';
+
+  // ── Tiny helpers ────────────────────────────────────────────────────────────
+  const $  = id => document.getElementById(id);
+  const show = el => el.classList.remove('hidden');
+  const hide = el => el.classList.add('hidden');
+
+  function setStatus(el, msg, type = '') {
+    el.textContent = msg;
+    el.className = 'status-msg' + (type ? ` ${type}` : '');
+  }
+
+  function stateBadge(state) {
+    const map = { pending: 'badge-pending', underway: 'badge-underway', complete: 'badge-complete' };
+    return `<span class="badge ${map[state] ?? 'badge-pending'}">${state ?? 'pending'}</span>`;
+  }
+
+  // ── Tabs ────────────────────────────────────────────────────────────────────
+  // Manager/general tabs
+  document.querySelectorAll('#app .tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const tabName = tab.dataset.tab;
+
+      // Only clear manager tabs
+      document.querySelectorAll('#app .tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#app .tab-panel').forEach(p => p.classList.remove('active'));
+      
+      // Add active to clicked tab and panel
+      tab.classList.add('active');
+      const panelEl = $(`tab-${tabName}`);
+      if (panelEl) panelEl.classList.add('active');
+
+      // Refresh participants (including pending signups) when tab is opened
+      if (tabName === 'participants' && currentTournamentId) {
+        loadParticipants(currentTournamentId);
+      }
+      if (tabName === 'news') {
+        renderManagerNews();
+      }
+    });
+  });
+  
+  // Participant tabs - independent from manager tabs
+  document.querySelectorAll('#participant-app .tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const tabName = tab.dataset.tab;
+      console.log('Participant tab clicked:', tabName);
+      
+      // Only clear participant tabs
+      document.querySelectorAll('#participant-app .tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#participant-app .tab-panel').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';  // Force hide all
+      });
+      console.log('Cleared participant active classes');
+      
+      // Add active to clicked tab and corresponding panel
+      tab.classList.add('active');
+      const panelEl = $(`tab-${tabName}`);
+      console.log('Panel element found:', !!panelEl, 'ID: tab-' + tabName);
+      if (panelEl) {
+        panelEl.classList.add('active');
+        panelEl.style.display = 'block';  // Force show with inline style
+        console.log('Added active class to panel, display style:', window.getComputedStyle(panelEl).display);
+      } else {
+        console.warn(`Could not find panel: tab-${tabName}`);
+      }
+      
+      // Re-render participant tabs when clicked
+      if (participantTeamName) {
+        console.log('Participant team name:', participantTeamName);
+        if (tabName === 'p-team') {
+          console.log('Re-rendering roster...');
+          renderP_TeamProfile();
+          renderP_Roster();
+        } else if (tabName === 'p-signups') {
+          console.log('Re-rendering signups...');
+          renderP_Signups();
+        } else if (tabName === 'p-events') {
+          console.log('Re-rendering events...');
+          renderP_Events();
+        }
+      } else {
+        console.log('Not a participant, skipping render');
+      }
+    });
+  });
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  const loginMenu = $('login-menu');
+  const loginDropdownBtn = $('login-dropdown-btn');
+  const loginDropdownMenu = $('login-dropdown-menu');
+
+  // Toggle dropdown on click
+  loginDropdownBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginDropdownMenu.classList.toggle('active');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!loginMenu.contains(e.target)) {
+      loginDropdownMenu.classList.remove('active');
+    }
+  });
+
+  // Manager login
+  $('manager-login-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    loginDropdownMenu.classList.remove('active');
+    sessionStorage.setItem('challonge_return_to', window.location.href);
+    ChallongeAuth.login();
+  });
+
+  // ── Participant login - redirects to Challonge OAuth (REQUIRES valid Challonge account)
+  $('participant-login-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    // Clear any existing participant session data - force fresh OAuth
+    sessionStorage.removeItem('participant_team_name');
+    loginDropdownMenu.classList.remove('active');
+    sessionStorage.setItem('challonge_return_to', window.location.href);
+    sessionStorage.setItem('participant_mode', 'true');
+    ChallongeAuth.login();
+  });
+
+  $('logout-btn').addEventListener('click', () => { ChallongeAuth.logout(); location.reload(); });
+
+  // Participant logout
+  window.participantLogout = () => {
+    sessionStorage.removeItem('participant_team_name');
+    sessionStorage.removeItem('participant_mode');
+    sessionStorage.removeItem('participant_active');
+    ChallongeAuth.logout();
+    location.reload();
+  };
+
+  // ── Shared state ────────────────────────────────────────────────────────────
+  let cachedTournaments = [];
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // TOURNAMENT LIST TAB
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  async function loadTournaments() {
+    setStatus($('list-status'), 'Loading…', 'loading');
+    try {
+      cachedTournaments = await Tournaments.list();
+      renderTournamentTable(cachedTournaments);
+      populateAllDropdowns(cachedTournaments);
+      setStatus($('list-status'), '');
+      cachePublicData(cachedTournaments); // fire-and-forget; updates public landing page cache
+    } catch (err) {
+      setStatus($('list-status'), err.message, 'error');
+    }
+  }
+
+  function renderTournamentTable(tournaments) {
+    const tbody = $('tournaments-tbody');
+    if (!tournaments.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No tournaments yet — create one!</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = tournaments.map(t => {
+      const a = t.attributes;
+      return `
+        <tr>
+          <td><strong>${a.name}</strong></td>
+          <td style="color:var(--muted)">${a.tournament_type ? capFirst(a.tournament_type) : '—'}</td>
+          <td>${stateBadge(a.state)}</td>
+          <td style="color:var(--muted)" id="pcount-${t.id}">—</td>
+          <td>
+            <div class="actions-row">
+              ${a.state === 'pending'  ? `<button class="btn btn-outline btn-sm" onclick="startTournament('${t.id}')">▶ Start</button>` : ''}
+              ${a.state === 'underway' ? `<button class="btn btn-outline btn-sm" onclick="finalizeTournament('${t.id}')">✔ Finalize</button>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="deleteTournament('${t.id}', '${a.name.replace(/'/g,"\\'")}')">✕ Delete</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    // Fetch real participant counts asynchronously (the list-endpoint field is unreliable)
+    tournaments.forEach(async t => {
+      try {
+        const parts = await Participants.list(t.id);
+        const cell = $(`pcount-${t.id}`);
+        if (cell) cell.textContent = parts.length;
+      } catch (_) {
+        const cell = $(`pcount-${t.id}`);
+        if (cell) cell.textContent = '?';
+      }
+    });
+  }
+
+  function populateAllDropdowns(tournaments) {
+    const options = `<option value="">— choose a tournament —</option>` +
+      tournaments.map(t => `<option value="${t.id}">${t.attributes.name}</option>`).join('');
+    $('p-tournament-select').innerHTML     = options;
+    $('score-tournament-select').innerHTML = options;
+  }
+
+  // Global handlers for inline onclick buttons
+  window.startTournament    = async id => { try { await Tournaments.start(id);    setStatus($('list-status'), 'Started!', 'ok');    loadTournaments(); } catch(e) { setStatus($('list-status'), e.message, 'error'); } };
+  window.finalizeTournament = async id => { try { await Tournaments.finalize(id); setStatus($('list-status'), 'Finalized!', 'ok'); loadTournaments(); } catch(e) { setStatus($('list-status'), e.message, 'error'); } };
+  window.deleteTournament   = async (id, name) => {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try { await Tournaments.delete(id); loadTournaments(); } catch(e) { setStatus($('list-status'), e.message, 'error'); }
+  };
+
+  $('refresh-btn').addEventListener('click', loadTournaments);
+  $('dashboard-create-btn').addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const createTab = document.querySelector('.tab[data-tab="create"]');
+    if (createTab) createTab.classList.add('active');
+    const createPanel = document.getElementById('tab-create');
+    if (createPanel) createPanel.classList.add('active');
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // CREATE TOURNAMENT TAB
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  // Toggle two-stage configuration
+  $('t-two-stage').addEventListener('change', function () {
+    $('two-stage-config').style.display = this.checked ? 'block' : 'none';
+  });
+
+  $('create-btn').addEventListener('click', async () => {
+    const name = $('t-name').value.trim();
+    if (!name) { setStatus($('create-status'), 'Name is required.', 'error'); return; }
+
+    const isTwoStage = $('t-two-stage').checked;
+    if (isTwoStage) {
+      const stage2Name = $('t-stage2-name').value.trim();
+      const advancing = $('t-advancing').value;
+      if (!stage2Name) { setStatus($('create-status'), 'Stage 2 name is required.', 'error'); return; }
+      if (!advancing || advancing < 1) { setStatus($('create-status'), 'Please specify teams advancing.', 'error'); return; }
+    }
+
+    $('create-btn').disabled = true;
+    setStatus($('create-status'), 'Creating…', 'loading');
+    try {
+      if (isTwoStage) {
+        // Create Stage 1
+        const stage1 = await Tournaments.create({
+          name: `${name} - Stage 1`,
+          tournament_type: $('t-type').value,
+          private:         $('t-private').value === 'true',
+          description:     `Stage 1 (Qualifying round)\n\n${$('t-desc').value.trim()}`,
+          url:             $('t-url').value.trim() ? `${$('t-url').value.trim()}-stage1` : undefined,
+        });
+
+        // Create Stage 2
+        const stage2 = await Tournaments.create({
+          name: `${name} - ${$('t-stage2-name').value.trim()}`,
+          tournament_type: $('t-stage2-format').value,
+          private:         $('t-private').value === 'true',
+          description:     `Stage 2 (Finals - Top ${$('t-advancing').value} teams advance)\n\n${$('t-desc').value.trim()}`,
+          url:             $('t-url').value.trim() ? `${$('t-url').value.trim()}-stage2` : undefined,
+        });
+
+        // Store linked tournament info
+        const linked = JSON.parse(localStorage.getItem('linked_tournaments')) || {};
+        linked[stage1.data.id] = {
+          stage: 1,
+          linkedTo: stage2.data.id,
+          advancingTeams: Number($('t-advancing').value),
+        };
+        linked[stage2.data.id] = {
+          stage: 2,
+          linkedTo: stage1.data.id,
+        };
+        localStorage.setItem('linked_tournaments', JSON.stringify(linked));
+
+        setStatus($('create-status'), `Two-stage tournament "${name}" created!`, 'ok');
+      } else {
+        // Single stage tournament
+        const t = await Tournaments.create({
+          name,
+          tournament_type: $('t-type').value,
+          private:         $('t-private').value === 'true',
+          description:     $('t-desc').value.trim() || undefined,
+          url:             $('t-url').value.trim()  || undefined,
+        });
+        setStatus($('create-status'), `"${t.attributes.name}" created!`, 'ok');
+      }
+      
+      // Reset form
+      $('t-name').value = '';
+      $('t-url').value = '';
+      $('t-desc').value = '';
+      $('t-two-stage').checked = false;
+      $('two-stage-config').style.display = 'none';
+      $('t-stage2-name').value = '';
+      $('t-advancing').value = '';
+      
+      loadTournaments();
+    } catch (err) {
+      setStatus($('create-status'), err.message, 'error');
+    } finally {
+      $('create-btn').disabled = false;
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // PARTICIPANTS TAB
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  let currentParticipants = [];
+  let currentTournamentId = null;
+
+  async function loadParticipants(tournamentId) {
+    setStatus($('plist-status'), 'Loading…', 'loading');
+    $('participants-tbody').innerHTML = `<tr class="empty-row"><td colspan="5">Loading…</td></tr>`;
+    try {
+      currentParticipants = await Participants.list(tournamentId);
+      renderParticipantTable(currentParticipants);
+      $('participant-count').textContent = `(${currentParticipants.length})`;
+      setStatus($('plist-status'), '');
+    } catch (err) {
+      setStatus($('plist-status'), err.message, 'error');
+    }
+    renderPendingSignups(tournamentId);
+  }
+
+  function renderPendingSignups(tournamentId) {
+    const card = $('pending-signups-card');
+    const list = $('pending-signups-list');
+    if (!tournamentId) { card.style.display = 'none'; return; }
+
+    const allTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+    const allSignups = JSON.parse(localStorage.getItem('participant_signups') || '{}');
+
+    // Teams that signed up for this tournament via the participant portal
+    const pendingTeams = Object.entries(allSignups)
+      .filter(([, ids]) => ids.map(String).includes(String(tournamentId)))
+      .map(([teamKey]) => ({ teamKey, ...allTeams[teamKey] || { name: teamKey, players: [] } }));
+
+    // Filter out any already confirmed on Challonge (matched by name or username)
+    const confirmedNames = new Set(currentParticipants.map(p => (p.attributes?.name || '').toLowerCase()));
+    const confirmedUsernames = new Set(currentParticipants.map(p => (p.attributes?.challonge_username || p.attributes?.username || '').toLowerCase()).filter(Boolean));
+    const unconfirmed = pendingTeams.filter(t => {
+      const dn = (t.displayName || t.name || '').toLowerCase();
+      const uk = (t.teamKey || '').toLowerCase();
+      return !confirmedNames.has(dn) && !confirmedUsernames.has(uk);
+    });
+
+    if (!unconfirmed.length) { card.style.display = 'none'; return; }
+
+    card.style.display = '';
+    list.innerHTML = unconfirmed.map(t => {
+      const displayName = t.displayName || t.name || t.teamKey;
+      const players = t.players || [];
+      const rosterHtml = players.length
+        ? `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:0.5rem;">
+            <thead><tr>
+              <th style="text-align:left;padding:0.25rem 0.5rem;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Player</th>
+              <th style="text-align:left;padding:0.25rem 0.5rem;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Role</th>
+              <th style="text-align:left;padding:0.25rem 0.5rem;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Challonge</th>
+            </tr></thead>
+            <tbody>${players.map(p => `
+              <tr>
+                <td style="padding:0.25rem 0.5rem;">${p.name}</td>
+                <td style="padding:0.25rem 0.5rem;color:var(--muted);">${p.role || '—'}</td>
+                <td style="padding:0.25rem 0.5rem;color:var(--accent);">${p.challongeUsername ? `@${p.challongeUsername}` : '—'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`
+        : `<p style="color:var(--muted);font-size:0.78rem;margin-top:0.4rem;">No roster added yet.</p>`;
+
+      return `
+        <div style="background:var(--bg); border-radius:0.5rem; padding:0.75rem; margin-bottom:0.6rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <strong>${displayName}</strong>
+              <span style="color:var(--muted); font-size:0.78rem; margin-left:0.5rem;">Captain: @${t.teamKey}</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="confirmTeamSignup('${t.teamKey}', '${displayName.replace(/'/g,"\\'")}', '${tournamentId}')">Add to Tournament</button>
+          </div>
+          ${rosterHtml}
+        </div>`;
+    }).join('');
+  }
+
+  window.confirmTeamSignup = async (teamKey, displayName, tournamentId) => {
+    const statusEl = $('pending-signups-status');
+    setStatus(statusEl, `Adding ${displayName}…`, 'loading');
+    try {
+      await Participants.create(tournamentId, { name: displayName, username: teamKey });
+      setStatus(statusEl, `${displayName} added!`, 'ok');
+      await loadParticipants(tournamentId);
+      loadTournaments();
+    } catch (err) {
+      setStatus(statusEl, `Failed to add ${displayName}: ${err.message}`, 'error');
+    }
+  };
+
+  $('confirm-all-signups-btn').addEventListener('click', async () => {
+    const statusEl = $('pending-signups-status');
+    const buttons = $('pending-signups-list').querySelectorAll('button');
+    setStatus(statusEl, 'Adding all teams…', 'loading');
+    // Fire them sequentially so we don't flood the API
+    let added = 0;
+    for (const btn of buttons) {
+      btn.click();
+      await new Promise(r => setTimeout(r, 300));
+      added++;
+    }
+    if (added) setStatus(statusEl, `${added} team(s) added.`, 'ok');
+  });
+
+  function renderParticipantTable(participants) {
+    const tbody = $('participants-tbody');
+    if (!participants.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No participants yet. Add some below.</td></tr>`;
+      return;
+    }
+
+    const allTeams   = JSON.parse(localStorage.getItem('participant_teams')  || '{}');
+    const allSignups = JSON.parse(localStorage.getItem('participant_signups') || '{}');
+
+    // Find the local team that matches a Challonge participant (by display name or captain username)
+    function findLocalTeam(challongeName, challongeUsername) {
+      const nameLower = (challongeName || '').toLowerCase();
+      const userLower = (challongeUsername || '').toLowerCase();
+      for (const [key, team] of Object.entries(allTeams)) {
+        const dn = (team.displayName || team.name || key).toLowerCase();
+        if (dn === nameLower || key.toLowerCase() === userLower) return { key, team };
+      }
+      return null;
+    }
+
+    tbody.innerHTML = participants
+      .sort((a, b) => (a.attributes.seed ?? 999) - (b.attributes.seed ?? 999))
+      .map(p => {
+        const a = p.attributes;
+        const activeBadge = a.states?.active
+          ? `<span class="badge badge-active">Active</span>`
+          : `<span class="badge badge-inactive">Inactive</span>`;
+
+        const local = findLocalTeam(a.name, a.challonge_username ?? a.username);
+        const players = local?.team?.players || [];
+        const captainHandle = local ? `@${local.key}` : (a.challonge_username ?? a.username ?? '—');
+
+        const rosterRows = players.length
+          ? players.map(pl => `
+              <tr style="background:var(--surface-2);">
+                <td style="padding:0.25rem 0.5rem 0.25rem 2rem; color:var(--muted); font-size:0.75rem;"></td>
+                <td style="padding:0.25rem 0.5rem; font-size:0.8rem;">${pl.name}</td>
+                <td style="padding:0.25rem 0.5rem; font-size:0.78rem; color:var(--muted);">${pl.role || '—'}</td>
+                <td style="padding:0.25rem 0.5rem; font-size:0.78rem; color:var(--accent);">${pl.challongeUsername ? `@${pl.challongeUsername}` : ''}</td>
+                <td></td>
+              </tr>`).join('')
+          : '';
+
+        return `
+          <tr>
+            <td style="color:var(--muted)">${a.seed ?? '—'}</td>
+            <td><strong>${a.name}</strong></td>
+            <td style="color:var(--muted); font-size:0.82rem;">${captainHandle}</td>
+            <td>${activeBadge}</td>
+            <td>
+              <div class="actions-row">
+                <button class="btn btn-outline btn-sm"
+                  onclick="openRosterEditor('${(local?.key ?? a.name).replace(/'/g,"\\'")}', '${a.name.replace(/'/g,"\\'")}')">
+                  Edit Roster
+                </button>
+                <button class="btn btn-danger btn-sm"
+                  onclick="removeParticipant('${p.id}', '${a.name.replace(/'/g,"\\'")}', '${local?.key ?? ''}')">
+                  ✕ Remove
+                </button>
+              </div>
+            </td>
+          </tr>${rosterRows}`;
+      }).join('');
+  }
+
+  $('p-tournament-select').addEventListener('change', async function () {
+    const tId = this.value;
+    currentTournamentId = tId || null;
+    const hasT = !!tId;
+
+    // Enable / disable controls
+    $('add-participant-btn').disabled = !hasT;
+    $('bulk-add-btn').disabled        = !hasT;
+    $('randomize-btn').disabled       = !hasT;
+    $('clear-all-btn').disabled       = !hasT;
+
+    if (!hasT) {
+      $('participants-tbody').innerHTML = `<tr class="empty-row"><td colspan="5">Select a tournament above.</td></tr>`;
+      $('participant-count').textContent = '';
+      return;
+    }
+
+    await loadParticipants(tId);
+  });
+
+  // ── Add single participant ──────────────────────────────────────────────────
+  $('add-participant-btn').addEventListener('click', async () => {
+    if (!currentTournamentId) return;
+    const name = $('p-name').value.trim();
+    if (!name) { setStatus($('padd-status'), 'Name is required.', 'error'); return; }
+
+    const seedVal  = $('p-seed').value.trim();
+    const emailVal = $('p-email').value.trim();
+
+    const attrs = {
+      name,
+      seed: seedVal ? Number(seedVal) : undefined,
+    };
+
+    // Treat input as email if it contains '@', otherwise as username
+    if (emailVal) {
+      if (emailVal.includes('@')) attrs.email    = emailVal;
+      else                         attrs.username = emailVal;
+    }
+
+    $('add-participant-btn').disabled = true;
+    setStatus($('padd-status'), 'Adding…', 'loading');
+    try {
+      await Participants.create(currentTournamentId, attrs);
+      setStatus($('padd-status'), `${name} added!`, 'ok');
+      $('p-name').value = ''; $('p-seed').value = ''; $('p-email').value = '';
+      await loadParticipants(currentTournamentId);
+    } catch (err) {
+      setStatus($('padd-status'), err.message, 'error');
+    } finally {
+      $('add-participant-btn').disabled = false;
+    }
+  });
+
+  // ── Bulk add ────────────────────────────────────────────────────────────────
+  $('bulk-add-btn').addEventListener('click', async () => {
+    if (!currentTournamentId) return;
+
+    const lines = $('bulk-names').value
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean);
+
+    if (!lines.length) { setStatus($('pbulk-status'), 'Enter at least one name.', 'error'); return; }
+
+    const participants = lines.map((name, i) => ({ name, seed: i + 1 }));
+
+    $('bulk-add-btn').disabled = true;
+    setStatus($('pbulk-status'), `Adding ${participants.length} participants…`, 'loading');
+    try {
+      await Participants.bulkCreate(currentTournamentId, participants);
+      setStatus($('pbulk-status'), `${participants.length} participants added!`, 'ok');
+      $('bulk-names').value = '';
+      await loadParticipants(currentTournamentId);
+    } catch (err) {
+      setStatus($('pbulk-status'), err.message, 'error');
+    } finally {
+      $('bulk-add-btn').disabled = false;
+    }
+  });
+
+  // ── Randomize seeds ─────────────────────────────────────────────────────────
+  $('randomize-btn').addEventListener('click', async () => {
+    if (!currentTournamentId) return;
+    if (!confirm('Randomize the seeding order of all participants?')) return;
+    setStatus($('plist-status'), 'Randomizing…', 'loading');
+    try {
+      await Participants.randomize(currentTournamentId);
+      setStatus($('plist-status'), 'Seeds randomized!', 'ok');
+      await loadParticipants(currentTournamentId);
+    } catch (err) {
+      setStatus($('plist-status'), err.message, 'error');
+    }
+  });
+
+  // ── Clear all ───────────────────────────────────────────────────────────────
+  $('clear-all-btn').addEventListener('click', async () => {
+    if (!currentTournamentId) return;
+    if (!confirm('Remove ALL participants from this tournament? This cannot be undone.')) return;
+    setStatus($('plist-status'), 'Clearing…', 'loading');
+    try {
+      await Participants.clearAll(currentTournamentId);
+      setStatus($('plist-status'), 'All participants cleared.', 'ok');
+      await loadParticipants(currentTournamentId);
+      loadTournaments(); // refresh count in tournament list
+    } catch (err) {
+      setStatus($('plist-status'), err.message, 'error');
+    }
+  });
+
+  // ── Remove individual participant ───────────────────────────────────────────
+  // ── Roster editor (manager) ─────────────────────────────────────────────────
+
+  function renderRosterEditorContent(rosterKey, displayName) {
+    const allTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+    if (!allTeams[rosterKey]) {
+      allTeams[rosterKey] = { name: displayName, displayName, players: [] };
+      localStorage.setItem('participant_teams', JSON.stringify(allTeams));
+    }
+    const team = allTeams[rosterKey];
+    const players = team.players || [];
+    const captainUsername = team.captainUsername || null;
+
+    const safeKey = rosterKey.replace(/'/g, "\\'");
+    const safeName = displayName.replace(/'/g, "\\'");
+
+    const playerRows = players.length
+      ? players.map((pl, i) => {
+          const isCaptain = pl.challongeUsername && pl.challongeUsername === captainUsername;
+          return `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.6rem;background:var(--surface-2);border-radius:0.4rem;margin-bottom:0.35rem;gap:0.5rem;flex-wrap:wrap;">
+            <div>
+              ${isCaptain ? `<span style="color:var(--warning);margin-right:0.3rem;" title="Captain">★</span>` : ''}
+              <strong style="font-size:0.875rem;">${pl.name}</strong>
+              ${pl.challongeUsername ? `<span style="color:var(--accent);font-size:0.78rem;margin-left:0.5rem;">@${pl.challongeUsername}</span>` : ''}
+              ${pl.role ? `<span style="color:var(--muted);font-size:0.78rem;margin-left:0.5rem;">${pl.role}</span>` : ''}
+              ${isCaptain ? `<span style="color:var(--warning);font-size:0.72rem;font-weight:600;margin-left:0.4rem;">CAPTAIN</span>` : ''}
+            </div>
+            <div class="actions-row">
+              ${!isCaptain && pl.challongeUsername
+                ? `<button class="btn btn-outline btn-sm" onclick="setRosterCaptain('${safeKey}','${safeName}',${i})" title="Make this player the team captain">Set Captain</button>`
+                : ''}
+              ${isCaptain
+                ? `<button class="btn btn-warning btn-sm" onclick="setRosterCaptain('${safeKey}','${safeName}',-1)">Remove Captain</button>`
+                : ''}
+              <button class="btn btn-danger btn-sm" onclick="removeRosterPlayer('${safeKey}','${safeName}',${i})">Remove</button>
+            </div>
+          </div>`;
+        }).join('')
+      : `<p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem;">No players on this roster yet.</p>`;
+
+    const captainNote = captainUsername
+      ? `<p style="color:var(--muted);font-size:0.78rem;margin-bottom:0.75rem;">Captain <strong style="color:var(--warning);">@${captainUsername}</strong> can log in as a participant to manage this roster and sign up for events.</p>`
+      : `<p style="color:var(--muted);font-size:0.78rem;margin-bottom:0.75rem;">Set a captain to allow a player to manage this roster via the participant portal.</p>`;
+
+    $('roster-edit-content').innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <h2 style="margin:0;font-size:1.1rem;">${displayName} — Roster</h2>
+        <button onclick="closeRosterEditor()" class="btn btn-outline btn-sm">✕ Close</button>
+      </div>
+      ${captainNote}
+      <div style="margin-bottom:1rem;">${playerRows}</div>
+      <hr style="margin:1rem 0;" />
+      <h3 style="font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:0.75rem;">Add Player</h3>
+      <div class="form-row" style="margin-bottom:0.75rem;">
+        <div class="field" style="margin-bottom:0;">
+          <label for="re-username">Challonge Username</label>
+          <input type="text" id="re-username" placeholder="e.g. johndoe123" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="re-role">Role (optional)</label>
+          <input type="text" id="re-role" placeholder="e.g. IGL, Fragger" />
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="btn btn-primary" onclick="addRosterPlayer('${safeKey}','${safeName}')">Add Player</button>
+        <span class="status-msg" id="re-status"></span>
+      </div>`;
+  }
+
+  window.openRosterEditor = (rosterKey, displayName) => {
+    renderRosterEditorContent(rosterKey, displayName);
+    show($('roster-edit-modal'));
+  };
+
+  window.closeRosterEditor = () => {
+    hide($('roster-edit-modal'));
+    // Refresh table so inline roster rows update
+    if (currentTournamentId) renderParticipantTable(currentParticipants);
+  };
+
+  window.addRosterPlayer = (rosterKey, displayName) => {
+    const username = $('re-username').value.trim();
+    if (!username) { setStatus($('re-status'), 'Username is required.', 'error'); return; }
+
+    const allTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+    const team = allTeams[rosterKey] || { name: displayName, displayName, players: [] };
+    if (!team.players) team.players = [];
+    if (team.players.some(p => p.challongeUsername?.toLowerCase() === username.toLowerCase())) {
+      setStatus($('re-status'), `${username} is already on this roster.`, 'error');
+      return;
+    }
+    const role = $('re-role').value.trim();
+    team.players.push({ name: username, challongeUsername: username, role: role || null });
+    allTeams[rosterKey] = team;
+    localStorage.setItem('participant_teams', JSON.stringify(allTeams));
+    renderRosterEditorContent(rosterKey, displayName);
+  };
+
+  window.removeRosterPlayer = (rosterKey, displayName, index) => {
+    const allTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+    if (!allTeams[rosterKey]?.players) return;
+    const removed = allTeams[rosterKey].players.splice(index, 1)[0];
+    // Clear captain if the removed player was the captain
+    if (removed?.challongeUsername && removed.challongeUsername === allTeams[rosterKey].captainUsername) {
+      delete allTeams[rosterKey].captainUsername;
+    }
+    localStorage.setItem('participant_teams', JSON.stringify(allTeams));
+    renderRosterEditorContent(rosterKey, displayName);
+  };
+
+  window.setRosterCaptain = (rosterKey, displayName, playerIndex) => {
+    const allTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+    const team = allTeams[rosterKey];
+    if (!team) return;
+    if (playerIndex === -1) {
+      delete team.captainUsername;
+    } else {
+      const player = team.players[playerIndex];
+      if (!player?.challongeUsername) return;
+      team.captainUsername = player.challongeUsername;
+    }
+    localStorage.setItem('participant_teams', JSON.stringify(allTeams));
+    renderRosterEditorContent(rosterKey, displayName);
+  };
+
+  // Close roster editor on backdrop click
+  $('roster-edit-modal').addEventListener('click', e => {
+    if (e.target === $('roster-edit-modal')) closeRosterEditor();
+  });
+
+  window.removeParticipant = async (participantId, name, teamKey) => {
+    if (!currentTournamentId) return;
+    if (!confirm(`Remove "${name}" from this tournament?`)) return;
+    setStatus($('plist-status'), 'Removing…', 'loading');
+    try {
+      await Participants.delete(currentTournamentId, participantId);
+
+      // Also clear the participant-portal signup so their view updates
+      if (teamKey) {
+        const allSignups = JSON.parse(localStorage.getItem('participant_signups') || '{}');
+        if (allSignups[teamKey]) {
+          allSignups[teamKey] = allSignups[teamKey].filter(id => String(id) !== String(currentTournamentId));
+          localStorage.setItem('participant_signups', JSON.stringify(allSignups));
+        }
+      }
+
+      setStatus($('plist-status'), `${name} removed.`, 'ok');
+      await loadParticipants(currentTournamentId);
+      loadTournaments();
+    } catch (err) {
+      setStatus($('plist-status'), err.message, 'error');
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // TEAMS TAB
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  let teams = JSON.parse(localStorage.getItem('insleague_teams')) || [];
+  let currentTeamId = null;
+
+  function getTeamById(id) {
+    return teams.find(t => t.id === id);
+  }
+
+  function saveTeams() {
+    localStorage.setItem('insleague_teams', JSON.stringify(teams));
+  }
+
+  function renderTeamsList() {
+    const tbody = $('teams-tbody');
+    if (!teams.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No teams yet. Create one above.</td></tr>`;
+      $('teams-count').textContent = '';
+      return;
+    }
+    tbody.innerHTML = teams.map(t => `
+      <tr>
+        <td>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <div style="width:20px; height:20px; background:${t.color}; border-radius:4px;"></div>
+            <strong>${t.name}</strong>
+          </div>
+        </td>
+        <td style="color:var(--muted);">${t.color}</td>
+        <td style="color:var(--muted);">${t.players?.length ?? 0}</td>
+        <td>
+          <div class="actions-row">
+            <button class="btn btn-outline btn-sm" onclick="selectTeamForRoster('${t.id}')">Manage</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTeam('${t.id}', '${t.name.replace(/'/g,"\\'")}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    $('teams-count').textContent = `(${teams.length})`;
+  }
+
+  function populateTeamDropdown() {
+    const options = `<option value="">— choose a team —</option>` +
+      teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    $('team-select').innerHTML = options;
+  }
+
+  function renderTeamRoster(teamId) {
+    const team = getTeamById(teamId);
+    if (!team) return;
+
+    $('roster-header').textContent = `${team.name} Roster`;
+    const rosterDiv = $('roster-list');
+    
+    if (!team.players || !team.players.length) {
+      rosterDiv.innerHTML = `<p style="color:var(--muted); text-align:center; padding:1rem;">No players on this team yet.</p>`;
+      return;
+    }
+
+    rosterDiv.innerHTML = `
+      <div style="margin-top:1rem;">
+        <h3 style="font-size:0.95rem; color:var(--muted); margin-bottom:0.75rem;">Players</h3>
+        <ul style="list-style:none; padding:0; margin:0;">
+          ${team.players.map((p, i) => `
+            <li style="padding:0.5rem; background:var(--surface-2); margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+              <span>${i + 1}. ${p}</span>
+              <button class="btn btn-danger btn-sm" onclick="removePlayerFromTeam('${teamId}', ${i})">Remove</button>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  window.selectTeamForRoster = (teamId) => {
+    currentTeamId = teamId;
+    $('team-select').value = teamId;
+    $('add-player-btn').disabled = false;
+    renderTeamRoster(teamId);
+  };
+
+  window.removePlayerFromTeam = (teamId, playerIndex) => {
+    const team = getTeamById(teamId);
+    if (team && team.players) {
+      team.players.splice(playerIndex, 1);
+      saveTeams();
+      renderTeamRoster(teamId);
+    }
+  };
+
+  window.deleteTeam = (teamId, teamName) => {
+    if (!confirm(`Delete team "${teamName}"? This cannot be undone.`)) return;
+    teams = teams.filter(t => t.id !== teamId);
+    saveTeams();
+    renderTeamsList();
+    populateTeamDropdown();
+    currentTeamId = null;
+    $('team-select').value = '';
+    $('add-player-btn').disabled = true;
+    $('roster-list').innerHTML = '';
+    $('roster-header').textContent = 'Select a team to manage roster';
+  };
+
+  $('create-team-btn').addEventListener('click', () => {
+    const name = $('team-name').value.trim();
+    const color = $('team-color').value;
+
+    if (!name) {
+      setStatus($('create-team-status'), 'Team name is required.', 'error');
+      return;
+    }
+
+    const newTeam = {
+      id: 'team_' + Date.now(),
+      name,
+      color,
+      players: []
+    };
+
+    teams.push(newTeam);
+    saveTeams();
+    renderTeamsList();
+    populateTeamDropdown();
+    setStatus($('create-team-status'), `"${name}" created!`, 'ok');
+    $('team-name').value = '';
+    $('team-color').value = '#1c7ed6';
+  });
+
+  $('team-select').addEventListener('change', function () {
+    const teamId = this.value;
+    if (teamId) {
+      selectTeamForRoster(teamId);
+    } else {
+      currentTeamId = null;
+      $('add-player-btn').disabled = true;
+      $('roster-list').innerHTML = '';
+      $('roster-header').textContent = 'Select a team to manage roster';
+    }
+  });
+
+  $('add-player-btn').addEventListener('click', () => {
+    if (!currentTeamId) return;
+    const playerName = $('player-name').value.trim();
+
+    if (!playerName) {
+      setStatus($('player-status'), 'Player name is required.', 'error');
+      return;
+    }
+
+    const team = getTeamById(currentTeamId);
+    if (!team) return;
+
+    if (!team.players) team.players = [];
+    team.players.push(playerName);
+    saveTeams();
+    setStatus($('player-status'), `${playerName} added to team!`, 'ok');
+    $('player-name').value = '';
+    renderTeamRoster(currentTeamId);
+  });
+
+  // Initialize teams display on load
+  renderTeamsList();
+  populateTeamDropdown();
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // SCORES TAB
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  $('score-tournament-select').addEventListener('change', async function () {
+    const tId = this.value;
+    const matchSel  = $('score-match-select');
+    const winnerSel = $('score-winner');
+    matchSel.innerHTML  = '<option value="">Loading matches…</option>';
+    matchSel.disabled   = true;
+    winnerSel.innerHTML = '<option value="">Select a match first…</option>';
+    winnerSel.disabled  = true;
+    $('report-btn').disabled = true;
+
+    if (!tId) { matchSel.innerHTML = '<option value="">Select a tournament first…</option>'; return; }
+
+    try {
+      const matches = await Matches.list(tId, { state: 'open' });
+      if (!matches.length) { matchSel.innerHTML = '<option value="">No open matches</option>'; return; }
+      matchSel.innerHTML = '<option value="">— choose a match —</option>' +
+        matches.map(m => {
+          const a = m.attributes;
+          return `<option value="${m.id}" data-p1="${a.player1_id}" data-p2="${a.player2_id}">
+            Match #${a.suggested_play_order ?? m.id}
+          </option>`;
+        }).join('');
+      matchSel.disabled = false;
+    } catch (err) {
+      matchSel.innerHTML = `<option value="">Error: ${err.message}</option>`;
+    }
+  });
+
+  $('score-match-select').addEventListener('change', async function () {
+    const winnerSel = $('score-winner');
+    const selected  = this.options[this.selectedIndex];
+    if (!this.value) { winnerSel.disabled = true; $('report-btn').disabled = true; return; }
+
+    const tId = $('score-tournament-select').value;
+    const p1Id = selected.dataset.p1;
+    const p2Id = selected.dataset.p2;
+
+    // Use cached participants if available, otherwise fetch them
+    let participants = currentTournamentId === tId ? currentParticipants : [];
+    if (!participants.length) {
+      try { participants = await Participants.list(tId); } catch (_) {}
+    }
+
+    const pMap = Object.fromEntries(participants.map(p => [p.id, p.attributes.name]));
+    winnerSel.innerHTML = `
+      <option value="">— choose winner —</option>
+      <option value="${p1Id}">${pMap[p1Id] ?? `Player ${p1Id}`}</option>
+      <option value="${p2Id}">${pMap[p2Id] ?? `Player ${p2Id}`}</option>
+    `;
+    winnerSel.disabled = false;
+    $('report-btn').disabled = false;
+  });
+
+  $('report-btn').addEventListener('click', async () => {
+    const tId    = $('score-tournament-select').value;
+    const mId    = $('score-match-select').value;
+    const scores = $('score-csv').value.trim();
+    const winner = $('score-winner').value;
+
+    if (!scores || !winner) { setStatus($('score-status'), 'Fill in scores and winner.', 'error'); return; }
+
+    $('report-btn').disabled = true;
+    setStatus($('score-status'), 'Reporting…', 'loading');
+    try {
+      await Matches.reportScore(tId, mId, { scores_csv: scores, winner_id: Number(winner) });
+      setStatus($('score-status'), 'Score reported!', 'ok');
+      $('score-csv').value = '';
+      $('score-tournament-select').dispatchEvent(new Event('change'));
+    } catch (err) {
+      setStatus($('score-status'), err.message, 'error');
+    } finally {
+      $('report-btn').disabled = false;
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // PARTICIPANT MODE
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  let participantTeamName = sessionStorage.getItem('participant_team_name');
+  let participantTeams = JSON.parse(localStorage.getItem('participant_teams')) || {};
+  let participantSignups = JSON.parse(localStorage.getItem('participant_signups')) || {};
+
+  function saveParticipantData() {
+    localStorage.setItem('participant_teams', JSON.stringify(participantTeams));
+    localStorage.setItem('participant_signups', JSON.stringify(participantSignups));
+  }
+
+  function renderP_Events() {
+    const container = $('p-events-list');
+    if (!container) return;
+    if (!cachedTournaments.length) {
+      container.innerHTML = `<div class="card"><p style="color:var(--muted); text-align:center; padding:2rem;">No events available yet.</p></div>`;
+      return;
+    }
+    const mySignups = (participantSignups[participantTeamName] || []).map(String);
+    const team = participantTeams[participantTeamName];
+    const teamDisplayName = team?.displayName || participantTeamName || 'My Team';
+
+    // Async: fetch real participant counts from Challonge for each event
+    cachedTournaments.forEach(async t => {
+      const tid = String(t.id);
+      try {
+        const parts = await Participants.list(t.id);
+        const localCount = Object.values(participantSignups).filter(ids => ids.map(String).includes(tid)).length;
+        // Unconfirmed local signups not yet on Challonge
+        const confirmedNames = new Set(parts.map(p => (p.attributes?.name || '').toLowerCase()));
+        const confirmedUsers = new Set(parts.map(p => (p.attributes?.challonge_username || '').toLowerCase()).filter(Boolean));
+        const allTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+        const unconfirmedCount = Object.entries(participantSignups)
+          .filter(([, ids]) => ids.map(String).includes(tid))
+          .filter(([key]) => {
+            const dn = (allTeams[key]?.displayName || allTeams[key]?.name || key).toLowerCase();
+            return !confirmedNames.has(dn) && !confirmedUsers.has(key.toLowerCase());
+          }).length;
+        const total = parts.length + unconfirmedCount;
+        const el = document.getElementById(`p-event-count-${tid}`);
+        if (el) el.textContent = `${total} ${total === 1 ? 'team' : 'teams'} signed up`;
+      } catch (_) {}
+    });
+
+    container.innerHTML = cachedTournaments.map(t => {
+      const a = t.attributes;
+      const tid = String(t.id);
+      const isSignedUp = mySignups.includes(tid);
+      const safeName = a.name.replace(/'/g, "\\'");
+
+      let actionHtml;
+      if (isSignedUp) {
+        actionHtml = `<button class="btn btn-warning btn-sm" onclick="removeParticipantSignup('${tid}', '${safeName}')">Withdraw</button>`;
+      } else if (a.state === 'pending') {
+        actionHtml = `
+          <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+            <select id="signup-team-sel-${tid}" style="background:var(--bg); border:1px solid var(--border); border-radius:0.4rem; padding:0.28rem 0.5rem; color:var(--text); font-size:0.8rem;">
+              <option value="${participantTeamName}">${teamDisplayName}</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="signUpForEvent('${tid}', '${safeName}')">Sign Up</button>
+          </div>`;
+      } else {
+        actionHtml = `<span style="color:var(--muted); font-size:0.8rem;">Event ${a.state}</span>`;
+      }
+
+      return `
+        <div class="card" style="margin-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <h3 style="margin:0 0 0.35rem; font-size:1rem;">${a.name}</h3>
+              <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                ${stateBadge(a.state)}
+                <span style="color:var(--muted); font-size:0.8rem;">${capFirst(a.tournament_type ?? 'Single Elimination')}</span>
+                <span id="p-event-count-${tid}" style="color:var(--muted); font-size:0.8rem;">… teams signed up</span>
+              </div>
+              ${a.description ? `<p style="margin:0.5rem 0 0; color:var(--muted); font-size:0.82rem;">${a.description}</p>` : ''}
+            </div>
+            <div class="actions-row" style="align-items:center;">
+              <button class="btn btn-outline btn-sm" onclick="toggleEventDetails('${tid}')">View Details</button>
+              ${actionHtml}
+            </div>
+          </div>
+          <div id="event-details-${tid}" style="display:none;"></div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderP_Roster() {
+    try {
+      console.log('renderP_Roster: Starting...');
+      if (!participantTeamName) {
+        console.warn('renderP_Roster: participantTeamName not set');
+        return;
+      }
+      
+      const rosterList = $('p-roster-list');
+      const rosterCount = $('p-roster-count');
+      if (!rosterList || !rosterCount) {
+        console.warn('renderP_Roster: roster elements not found in DOM');
+        return;
+      }
+      
+      const team = participantTeams[participantTeamName];
+      console.log('renderP_Roster: team data:', team);
+      if (!team || !team.players || !team.players.length) {
+        rosterList.innerHTML = `<li style="color:var(--muted); text-align:center; padding:1rem;">No players added to your team yet.</li>`;
+        rosterCount.textContent = '';
+        console.log('renderP_Roster: No players, showing empty message');
+        return;
+      }
+      
+      rosterList.innerHTML = team.players.map((p, i) => `
+        <li style="padding:0.75rem; background:var(--surface-2); margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>${p.name}</strong>
+            ${p.challongeUsername ? `<span style="color:var(--accent); font-size:0.75rem; margin-left:0.5rem;">@${p.challongeUsername}</span>` : ''}
+            ${p.role ? `<span style="color:var(--muted); font-size:0.8rem; margin-left:0.5rem;">${p.role}</span>` : ''}
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="removeParticipantPlayer('${participantTeamName}', ${i})">Remove</button>
+        </li>
+      `).join('');
+      rosterCount.textContent = `(${team.players.length})`;
+      console.log('renderP_Roster: Rendered', team.players.length, 'players');
+    } catch (err) {
+      console.error('Error in renderP_Roster:', err);
+    }
+  }
+
+  function renderP_TeamProfile() {
+    const team = participantTeams[participantTeamName];
+    if (!team) return;
+
+    const avatarEl = $('p-team-avatar-display');
+    if (avatarEl) {
+      if (team.picture) {
+        avatarEl.outerHTML = `<img id="p-team-avatar-display" class="team-avatar" src="${team.picture}" alt="Team avatar" />`;
+      } else {
+        const initial = (team.displayName || team.name || '?')[0].toUpperCase();
+        // Ensure it's the placeholder div with initial
+        if (avatarEl.tagName === 'IMG') {
+          avatarEl.outerHTML = `<div id="p-team-avatar-display" class="team-avatar-placeholder">${initial}</div>`;
+        } else {
+          avatarEl.textContent = initial;
+        }
+      }
+    }
+
+    const nameEl = $('p-team-name-input');
+    const bioEl  = $('p-team-bio-input');
+    if (nameEl) nameEl.value = team.displayName || team.name || '';
+    if (bioEl)  bioEl.value  = team.bio || '';
+  }
+
+  function renderP_Signups() {
+    try {
+      console.log('renderP_Signups: Starting...');
+      if (!participantTeamName) {
+        console.warn('renderP_Signups: participantTeamName not set');
+        return;
+      }
+      
+      const tbody = $('p-signups-tbody');
+      if (!tbody) {
+        console.warn('renderP_Signups: p-signups-tbody element not found in DOM');
+        return;
+      }
+      
+      // Check visibility of elements
+      const table = tbody.closest('table');
+      const card = tbody.closest('.card');
+      const panel = tbody.closest('.tab-panel');
+      
+      console.log('renderP_Signups: DOM structure check:');
+      console.log('  - tbody found:', !!tbody, 'display:', window.getComputedStyle(tbody).display);
+      console.log('  - table found:', !!table, 'display:', window.getComputedStyle(table).display);
+      console.log('  - card found:', !!card, 'display:', window.getComputedStyle(card).display);
+      console.log('  - panel found:', !!panel, 'display:', window.getComputedStyle(panel).display);
+      
+      const mySignups = participantSignups[participantTeamName] || [];
+      console.log('renderP_Signups: mySignups count:', mySignups.length);
+      console.log('renderP_Signups: cachedTournaments available:', cachedTournaments.length);
+      
+      if (!mySignups.length) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="4">You haven't signed up for any events yet.</td></tr>`;
+        console.log('renderP_Signups: No signups, showing empty message');
+        return;
+      }
+
+      // Build HTML for each signup
+      const rows = mySignups.map(tId => {
+        let tour = cachedTournaments.find(t => String(t.id) === String(tId));
+        
+        if (!tour) {
+          console.warn(`renderP_Signups: Tournament ${tId} not found in cache`);
+          return '';
+        }
+        
+        const a = tour.attributes;
+        const badge = stateBadge(a.state);
+        const teamCount = Object.values(participantSignups).filter(ids => ids.map(String).includes(String(tId))).length;
+
+        return `<tr>
+          <td><strong>${a.name}</strong></td>
+          <td>${badge}</td>
+          <td style="color:var(--muted)">${teamCount} ${teamCount === 1 ? 'team' : 'teams'}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="removeParticipantSignup('${tId}', '${a.name.replace(/'/g,"\\'")}')">Withdraw</button></td>
+        </tr>`;
+      }).join('');
+      
+      console.log('renderP_Signups: Built HTML, length:', rows.length, 'Rows count:', (rows.match(/<tr>/g) || []).length);
+      
+      // Set the innerHTML
+      tbody.innerHTML = rows;
+      
+      console.log('renderP_Signups: Set innerHTML complete');
+      console.log('renderP_Signups: tbody now contains:', tbody.children.length, 'rows');
+      if (tbody.children.length > 0) {
+        console.log('renderP_Signups: First row:', tbody.children[0].innerHTML.substring(0, 100));
+      }
+      
+    } catch (err) {
+      console.error('Error in renderP_Signups:', err, err.stack);
+      const tbody = $('p-signups-tbody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`;
+    }
+  }
+
+
+  window.toggleEventDetails = async (tournamentId) => {
+    const panel = $(`event-details-${tournamentId}`);
+    if (!panel) return;
+
+    if (panel.style.display !== 'none') {
+      panel.style.display = 'none';
+      return;
+    }
+
+    panel.style.display = 'block';
+    panel.innerHTML = `<div class="event-detail-panel"><p style="color:var(--muted); font-size:0.85rem;">Loading…</p></div>`;
+
+    try {
+      const challongeParticipants = await Participants.list(tournamentId);
+      const allLocalTeams = JSON.parse(localStorage.getItem('participant_teams') || '{}');
+
+      // Helper: find local team data for a Challonge participant
+      function localForChallonge(challongeName, challongeUsername) {
+        const nameLower = (challongeName || '').toLowerCase();
+        const userLower = (challongeUsername || '').toLowerCase();
+        for (const [key, team] of Object.entries(allLocalTeams)) {
+          const dn = (team.displayName || team.name || key).toLowerCase();
+          if (dn === nameLower || key.toLowerCase() === userLower) return { key, team };
+        }
+        return null;
+      }
+
+      // Build team block HTML for any team (local or Challonge-only)
+      function teamBlock(displayName, players, picture, bio, color, teamKey, isPending) {
+        const initial = (displayName || '?')[0].toUpperCase();
+        const avatarHtml = picture
+          ? `<img src="${picture}" style="width:3rem;height:3rem;border-radius:50%;object-fit:cover;flex-shrink:0;" />`
+          : `<div style="width:3rem;height:3rem;border-radius:50%;background:${color || 'var(--accent)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:#fff;flex-shrink:0;">${initial}</div>`;
+        const rosterRows = (players || []).length
+          ? players.map(p => `
+              <tr>
+                <td style="padding:0.4rem 0.6rem;"><strong>${p.name}</strong></td>
+                <td style="padding:0.4rem 0.6rem;color:var(--muted);font-size:0.8rem;">${p.role || '—'}</td>
+                <td style="padding:0.4rem 0.6rem;color:var(--accent);font-size:0.78rem;">${p.challongeUsername ? `@${p.challongeUsername}` : ''}</td>
+              </tr>`).join('')
+          : `<tr><td colspan="3" style="padding:0.5rem 0.6rem;color:var(--muted);font-size:0.82rem;">No roster added yet.</td></tr>`;
+        const viewBtn = teamKey
+          ? `<button class="btn btn-outline btn-sm" onclick="showTeamPage('${teamKey.replace(/'/g,"\\'")}')">View Team Page</button>`
+          : '';
+        const pendingBadge = isPending
+          ? `<span class="badge badge-pending" style="margin-left:0.5rem;">Pending</span>` : '';
+        return `
+          <div class="event-team-block" style="margin-bottom:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;justify-content:space-between;flex-wrap:wrap;margin-bottom:0.6rem;">
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                ${avatarHtml}
+                <div>
+                  <div style="font-weight:600;font-size:0.95rem;">${displayName}${pendingBadge}</div>
+                  ${bio ? `<div style="color:var(--muted);font-size:0.78rem;margin-top:0.15rem;">${bio}</div>` : ''}
+                </div>
+              </div>
+              ${viewBtn}
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+                <thead><tr>
+                  <th style="text-align:left;padding:0.3rem 0.6rem;color:var(--muted);font-weight:500;font-size:0.75rem;border-bottom:1px solid var(--border);">Player</th>
+                  <th style="text-align:left;padding:0.3rem 0.6rem;color:var(--muted);font-weight:500;font-size:0.75rem;border-bottom:1px solid var(--border);">Role</th>
+                  <th style="text-align:left;padding:0.3rem 0.6rem;color:var(--muted);font-weight:500;font-size:0.75rem;border-bottom:1px solid var(--border);">Challonge</th>
+                </tr></thead>
+                <tbody>${rosterRows}</tbody>
+              </table>
+            </div>
+          </div>`;
+      }
+
+      let html = '<div class="event-detail-panel">';
+      const renderedKeys = new Set();
+
+      // Challonge confirmed participants (manager-added or confirmed portal signups)
+      const confirmedBlocks = challongeParticipants.map(p => {
+        const a = p.attributes;
+        const local = localForChallonge(a.name, a.challonge_username ?? a.username);
+        const key = local?.key ?? null;
+        if (key) renderedKeys.add(key);
+        const t = local?.team;
+        return teamBlock(
+          t?.displayName || t?.name || a.name,
+          t?.players || [],
+          t?.picture, t?.bio, t?.color, key, false
+        );
+      });
+
+      // Unconfirmed local signups not yet on Challonge
+      const pendingBlocks = Object.entries(participantSignups)
+        .filter(([, ids]) => ids.map(String).includes(String(tournamentId)))
+        .filter(([key]) => !renderedKeys.has(key))
+        .map(([key]) => {
+          const t = allLocalTeams[key] || { name: key, players: [] };
+          return teamBlock(
+            t.displayName || t.name || key,
+            t.players, t.picture, t.bio, t.color, key, true
+          );
+        });
+
+      const allBlocks = [...confirmedBlocks, ...pendingBlocks];
+      if (allBlocks.length) {
+        html += `<h4>Registered Teams (${allBlocks.length})</h4>`;
+        html += allBlocks.join('');
+      } else {
+        html += `<p style="color:var(--muted);text-align:center;padding:1rem;">No teams signed up yet.</p>`;
+      }
+
+      html += '</div>';
+      panel.innerHTML = html;
+    } catch (err) {
+      panel.innerHTML = `<div class="event-detail-panel"><p style="color:var(--danger);font-size:0.85rem;">Failed to load details: ${err.message}</p></div>`;
+    }
+  };
+
+  window.closeTeamModal = () => {
+    hide($('team-page-modal'));
+  };
+
+  window.showTeamPage = async (teamKey) => {
+    const modal = $('team-page-modal');
+    const content = $('team-page-modal-content');
+    show(modal);
+    content.innerHTML = `<p style="color:var(--muted);">Loading…</p>`;
+
+    const team = participantTeams[teamKey] || { name: teamKey, players: [] };
+    const initial = (team.displayName || team.name || '?')[0].toUpperCase();
+    const avatarHtml = team.picture
+      ? `<img src="${team.picture}" class="team-avatar" style="width:5rem;height:5rem;" />`
+      : `<div class="team-avatar-placeholder" style="width:5rem;height:5rem;font-size:1.6rem;">${initial}</div>`;
+
+    const players = team.players || [];
+    const rosterHtml = players.length
+      ? `<ul style="list-style:none;padding:0;margin:0;">
+          ${players.map(p => `
+            <li style="padding:0.6rem 0.75rem;background:var(--surface-2);margin-bottom:0.4rem;border-radius:0.4rem;display:flex;align-items:center;gap:0.75rem;">
+              <div style="flex:1;">
+                <strong>${p.name}</strong>
+                ${p.challongeUsername ? `<span style="color:var(--accent);font-size:0.78rem;margin-left:0.5rem;">@${p.challongeUsername}</span>` : ''}
+              </div>
+              <span style="color:var(--muted);font-size:0.8rem;">${p.role || ''}</span>
+            </li>`).join('')}
+         </ul>`
+      : `<p style="color:var(--muted);font-size:0.85rem;">No roster added yet.</p>`;
+
+    // Start rendering while API calls happen
+    content.innerHTML = `
+      <div style="display:flex;gap:1.25rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1.5rem;">
+        ${avatarHtml}
+        <div style="flex:1;min-width:0;">
+          <h2 style="margin:0 0 0.25rem;font-size:1.3rem;">${team.displayName || team.name}</h2>
+          ${team.bio ? `<p style="color:var(--muted);margin:0;font-size:0.875rem;">${team.bio}</p>` : ''}
+        </div>
+        <button onclick="closeTeamModal()" class="btn btn-outline btn-sm" style="flex-shrink:0;">✕ Close</button>
+      </div>
+
+      <h3 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:0.75rem;">Roster (${players.length})</h3>
+      ${rosterHtml}
+
+      <h3 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin:1.25rem 0 0.75rem;">Match Record</h3>
+      <div id="team-modal-record"><p style="color:var(--muted);font-size:0.85rem;">Loading record…</p></div>
+
+      <h3 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin:1.25rem 0 0.75rem;">Event History</h3>
+      <div id="team-modal-events"><p style="color:var(--muted);font-size:0.85rem;">Loading events…</p></div>
+    `;
+
+    // Fetch match data for this team's signed-up events
+    const theirSignups = (participantSignups[teamKey] || []).map(String);
+    if (!theirSignups.length) {
+      $('team-modal-record').innerHTML = `<p style="color:var(--muted);font-size:0.85rem;">No events signed up.</p>`;
+      $('team-modal-events').innerHTML = `<p style="color:var(--muted);font-size:0.85rem;">No events signed up.</p>`;
+      return;
+    }
+
+    try {
+      let wins = 0, losses = 0;
+      const eventRows = [];
+
+      for (const tId of theirSignups) {
+        const tour = cachedTournaments.find(t => String(t.id) === tId);
+        const tourName = tour?.attributes?.name ?? `Event ${tId}`;
+        const tourState = tour?.attributes?.state ?? '—';
+
+        let finishHtml = `<span style="color:var(--muted);">In progress</span>`;
+        try {
+          const parts = await Participants.list(tId);
+          const me = parts.find(p =>
+            p.attributes?.challonge_username === teamKey ||
+            p.attributes?.name === teamKey ||
+            p.attributes?.name === team.displayName
+          );
+          if (me?.attributes?.final_rank) {
+            finishHtml = `<strong>#${me.attributes.final_rank}</strong>`;
+          } else if (tourState === 'complete') {
+            finishHtml = `<span style="color:var(--muted);">Finalized</span>`;
+          }
+        } catch (_) {}
+
+        try {
+          const matches = await Matches.list(tId);
+          const complete = matches.filter(m => m.attributes?.state === 'complete');
+          eventRows.push({
+            tourName, tourState, finishHtml,
+            played: complete.length, total: matches.length
+          });
+        } catch (_) {
+          eventRows.push({ tourName, tourState, finishHtml, played: 0, total: 0 });
+        }
+      }
+
+      const recordEl = $('team-modal-record');
+      if (recordEl) {
+        recordEl.innerHTML = `
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+            <div style="text-align:center;background:var(--bg);padding:0.75rem 1.5rem;border-radius:0.5rem;">
+              <div style="font-size:1.6rem;font-weight:700;color:var(--success);">${wins}</div>
+              <div style="font-size:0.78rem;color:var(--muted);">Wins</div>
+            </div>
+            <div style="text-align:center;background:var(--bg);padding:0.75rem 1.5rem;border-radius:0.5rem;">
+              <div style="font-size:1.6rem;font-weight:700;color:var(--danger);">${losses}</div>
+              <div style="font-size:0.78rem;color:var(--muted);">Losses</div>
+            </div>
+            <div style="text-align:center;background:var(--bg);padding:0.75rem 1.5rem;border-radius:0.5rem;">
+              <div style="font-size:1.6rem;font-weight:700;">${theirSignups.length}</div>
+              <div style="font-size:0.78rem;color:var(--muted);">Events</div>
+            </div>
+          </div>`;
+      }
+
+      const eventsEl = $('team-modal-events');
+      if (eventsEl) {
+        eventsEl.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Event</th><th>Status</th><th>Finish</th><th>Matches</th></tr></thead>
+              <tbody>
+                ${eventRows.map(r => `
+                  <tr>
+                    <td><strong>${r.tourName}</strong></td>
+                    <td>${stateBadge(r.tourState)}</td>
+                    <td>${r.finishHtml}</td>
+                    <td style="color:var(--muted);font-size:0.82rem;">${r.played} / ${r.total} played</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+      }
+    } catch (err) {
+      const recordEl = $('team-modal-record');
+      if (recordEl) recordEl.innerHTML = `<p style="color:var(--danger);font-size:0.85rem;">${err.message}</p>`;
+    }
+  };
+
+  window.signUpForEvent = (eventId, eventName) => {
+    if (!participantSignups[participantTeamName]) participantSignups[participantTeamName] = [];
+    if (participantSignups[participantTeamName].map(String).includes(String(eventId))) return;
+
+    participantSignups[participantTeamName].push(String(eventId));
+    saveParticipantData();
+    renderP_Events();
+    renderP_Signups();
+    setStatus($('p-events-status'), `Signed up for "${eventName}"! Awaiting manager confirmation.`, 'ok');
+  };
+
+  window.removeParticipantSignup = (eventId, eventName) => {
+    if (!participantSignups[participantTeamName]) return;
+    participantSignups[participantTeamName] = participantSignups[participantTeamName].filter(id => String(id) !== String(eventId));
+    saveParticipantData();
+    renderP_Events();
+    renderP_Signups();
+    setStatus($('p-events-status'), `Withdrawn from "${eventName}".`, 'ok');
+  };
+
+  window.removeParticipantPlayer = (teamName, playerIndex) => {
+    const team = participantTeams[teamName];
+    if (team && team.players) {
+      team.players.splice(playerIndex, 1);
+      saveParticipantData();
+      renderP_Roster();
+    }
+  };
+
+  // Participant Challonge OAuth login button (redirects to OAuth)
+  if ($('participant-challonge-login')) {
+    $('participant-challonge-login').addEventListener('click', (e) => {
+      e.preventDefault();
+      sessionStorage.setItem('challonge_return_to', window.location.href);
+      sessionStorage.setItem('participant_mode', 'true');
+      ChallongeAuth.login();
+    });
+  }
+
+  $('p-add-player-btn').addEventListener('click', () => {
+    const username = $('p-player-name').value.trim();
+    const role = $('p-player-role').value.trim();
+
+    if (!username) {
+      setStatus($('p-player-status'), 'Challonge username is required.', 'error');
+      return;
+    }
+
+    const team = participantTeams[participantTeamName];
+    if (!team) return;
+
+    if (!team.players) team.players = [];
+
+    // Prevent duplicate usernames on the roster
+    if (team.players.some(p => p.challongeUsername?.toLowerCase() === username.toLowerCase())) {
+      setStatus($('p-player-status'), `${username} is already on your roster.`, 'error');
+      return;
+    }
+
+    team.players.push({ name: username, role: role || null, challongeUsername: username });
+    saveParticipantData();
+
+    setStatus($('p-player-status'), `${username} added to roster.`, 'ok');
+    $('p-player-name').value = '';
+    $('p-player-role').value = '';
+    renderP_Roster();
+  });
+
+  // ── Team profile save ──────────────────────────────────────────────────────
+  $('p-save-team-btn').addEventListener('click', () => {
+    const team = participantTeams[participantTeamName];
+    if (!team) return;
+    team.displayName = $('p-team-name-input').value.trim() || participantTeamName;
+    team.bio = $('p-team-bio-input').value.trim();
+    saveParticipantData();
+    setStatus($('p-team-status'), 'Saved!', 'ok');
+    $('participant-team-display').textContent = `Team: ${team.displayName}`;
+  });
+
+  // ── Team avatar upload ─────────────────────────────────────────────────────
+  $('p-team-avatar-input').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const team = participantTeams[participantTeamName];
+      if (!team) return;
+      team.picture = ev.target.result;
+      saveParticipantData();
+      renderP_TeamProfile();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ── Match history load ─────────────────────────────────────────────────────
+  // ── Match History: individual match results ────────────────────────────────
+  $('p-load-matches-btn').addEventListener('click', async () => {
+    const container = $('p-match-history');
+    const mySignups = (participantSignups[participantTeamName] || []).map(String);
+
+    if (!mySignups.length) {
+      container.innerHTML = `<p style="color:var(--muted);text-align:center;padding:1rem;">Sign up for events first to see match history.</p>`;
+      return;
+    }
+
+    $('p-load-matches-btn').disabled = true;
+    container.innerHTML = `<p style="color:var(--muted);">Loading…</p>`;
+
+    try {
+      const matchRows = [];
+      for (const tId of mySignups) {
+        const tour = cachedTournaments.find(t => String(t.id) === tId);
+        const tourName = tour?.attributes?.name ?? `Event ${tId}`;
+        const matches = await Matches.list(tId);
+        for (const m of matches) {
+          const a = m.attributes || {};
+          matchRows.push({
+            tourName,
+            round: a.round != null ? `Round ${a.round}` : '—',
+            state: a.state ?? 'pending',
+            scores: a.scores_csv || '—',
+          });
+        }
+      }
+
+      if (!matchRows.length) {
+        container.innerHTML = `<p style="color:var(--muted);text-align:center;padding:1rem;">No matches found yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Event</th><th>Round</th><th>State</th><th>Score</th></tr></thead>
+            <tbody>
+              ${matchRows.map(r => `
+                <tr>
+                  <td><strong>${r.tourName}</strong></td>
+                  <td style="color:var(--muted);">${r.round}</td>
+                  <td>${stateBadge(r.state)}</td>
+                  <td style="color:var(--muted);font-size:0.82rem;">${r.scores}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    } catch (err) {
+      container.innerHTML = `<p style="color:var(--danger);">Failed to load: ${err.message}</p>`;
+    } finally {
+      $('p-load-matches-btn').disabled = false;
+    }
+  });
+
+  // ── Event Results: finish positions per event ──────────────────────────────
+  $('p-load-results-btn').addEventListener('click', async () => {
+    const container = $('p-event-results');
+    const mySignups = (participantSignups[participantTeamName] || []).map(String);
+    const team = participantTeams[participantTeamName];
+    const myDisplayName = team?.displayName;
+
+    if (!mySignups.length) {
+      container.innerHTML = `<p style="color:var(--muted);text-align:center;padding:1rem;">Sign up for events first to see results.</p>`;
+      return;
+    }
+
+    $('p-load-results-btn').disabled = true;
+    container.innerHTML = `<p style="color:var(--muted);">Loading…</p>`;
+
+    try {
+      const rows = [];
+      for (const tId of mySignups) {
+        const tour = cachedTournaments.find(t => String(t.id) === tId);
+        const tourName = tour?.attributes?.name ?? `Event ${tId}`;
+        const tourState = tour?.attributes?.state ?? '—';
+
+        let finishHtml = `<span style="color:var(--muted);">In progress</span>`;
+        let playersCount = 0;
+        try {
+          const parts = await Participants.list(tId);
+          playersCount = parts.length;
+          const me = parts.find(p =>
+            p.attributes?.challonge_username === participantTeamName ||
+            p.attributes?.name === participantTeamName ||
+            (myDisplayName && p.attributes?.name === myDisplayName)
+          );
+          if (me?.attributes?.final_rank) {
+            finishHtml = `<strong style="color:var(--success);">#${me.attributes.final_rank}</strong> of ${playersCount}`;
+          } else if (tourState === 'complete') {
+            finishHtml = `<span style="color:var(--muted);">Finalized</span>`;
+          }
+        } catch (_) {}
+
+        rows.push({ tourName, tourState, finishHtml });
+      }
+
+      container.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Event</th><th>Status</th><th>Finish</th></tr></thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td><strong>${r.tourName}</strong></td>
+                  <td>${stateBadge(r.tourState)}</td>
+                  <td>${r.finishHtml}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    } catch (err) {
+      container.innerHTML = `<p style="color:var(--danger);">Failed to load: ${err.message}</p>`;
+    } finally {
+      $('p-load-results-btn').disabled = false;
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // NEWS
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // IMAGE CROP
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  const CROP_OUT_W = 960, CROP_OUT_H = 280; // output resolution matches carousel ratio
+  const CROP_PRV_W = 640, CROP_PRV_H = Math.round(640 * CROP_OUT_H / CROP_OUT_W); // preview canvas res
+
+  let _cropImg      = null;
+  let _cropObjUrl   = null;
+  let _cropCallback = null;
+  let _cropScale    = 1;
+  let _cropX        = 0, _cropY = 0;
+  let _cropDrag     = null;
+
+  function _clampCrop() {
+    const drawW = _cropImg.naturalWidth  * _cropScale;
+    const drawH = _cropImg.naturalHeight * _cropScale;
+    _cropX = Math.min(0, Math.max(_cropX, CROP_PRV_W - drawW));
+    _cropY = Math.min(0, Math.max(_cropY, CROP_PRV_H - drawH));
+  }
+
+  function _drawCrop() {
+    const canvas = $('crop-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, CROP_PRV_W, CROP_PRV_H);
+    ctx.drawImage(_cropImg, _cropX, _cropY,
+      _cropImg.naturalWidth  * _cropScale,
+      _cropImg.naturalHeight * _cropScale);
+  }
+
+  function openCropModal(file, onApply) {
+    _cropCallback = onApply;
+    if (_cropObjUrl) URL.revokeObjectURL(_cropObjUrl);
+    _cropObjUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      _cropImg = img;
+      const canvas = $('crop-canvas');
+      canvas.width  = CROP_PRV_W;
+      canvas.height = CROP_PRV_H;
+
+      // Scale to fill, then center
+      const fill = Math.max(CROP_PRV_W / img.naturalWidth, CROP_PRV_H / img.naturalHeight);
+      _cropScale = fill;
+      _cropX = (CROP_PRV_W - img.naturalWidth  * fill) / 2;
+      _cropY = (CROP_PRV_H - img.naturalHeight * fill) / 2;
+
+      const zoom = $('crop-zoom');
+      zoom.min   = fill;
+      zoom.max   = fill * 5;
+      zoom.step  = fill * 0.002;
+      zoom.value = fill;
+
+      _clampCrop();
+      _drawCrop();
+      show($('crop-modal'));
+    };
+    img.src = _cropObjUrl;
+  }
+
+  window.closeCropModal = () => {
+    hide($('crop-modal'));
+    if (_cropObjUrl) { URL.revokeObjectURL(_cropObjUrl); _cropObjUrl = null; }
+    _cropImg = null; _cropCallback = null; _cropDrag = null;
+  };
+
+  window.applyCrop = () => {
+    if (!_cropImg || !_cropCallback) return;
+    const out = document.createElement('canvas');
+    out.width = CROP_OUT_W; out.height = CROP_OUT_H;
+    const ctx = out.getContext('2d');
+    const s = CROP_OUT_W / CROP_PRV_W; // scale preview coords → output coords
+    ctx.drawImage(_cropImg,
+      _cropX * s, _cropY * s,
+      _cropImg.naturalWidth  * _cropScale * s,
+      _cropImg.naturalHeight * _cropScale * s);
+    _cropCallback(out.toDataURL('image/jpeg', 0.88));
+    closeCropModal();
+  };
+
+  // ── Drag ──────────────────────────────────────────────────────────────────────
+  (() => {
+    const canvas = () => $('crop-canvas');
+
+    function startDrag(clientX, clientY) {
+      if (!_cropImg) return;
+      _cropDrag = { mx: clientX, my: clientY, ox: _cropX, oy: _cropY };
+      canvas().style.cursor = 'grabbing';
+    }
+    function moveDrag(clientX, clientY) {
+      if (!_cropDrag) return;
+      const rect = canvas().getBoundingClientRect();
+      const sx = CROP_PRV_W / rect.width;
+      const sy = CROP_PRV_H / rect.height;
+      _cropX = _cropDrag.ox + (clientX - _cropDrag.mx) * sx;
+      _cropY = _cropDrag.oy + (clientY - _cropDrag.my) * sy;
+      _clampCrop();
+      _drawCrop();
+    }
+    function endDrag() {
+      if (_cropDrag) { _cropDrag = null; if (canvas()) canvas().style.cursor = 'grab'; }
+    }
+
+    document.addEventListener('mousedown',  e => { if (e.target === $('crop-canvas')) { e.preventDefault(); startDrag(e.clientX, e.clientY); } });
+    document.addEventListener('mousemove',  e => moveDrag(e.clientX, e.clientY));
+    document.addEventListener('mouseup',    endDrag);
+    document.addEventListener('touchstart', e => { if (e.target === $('crop-canvas')) { e.preventDefault(); const t = e.touches[0]; startDrag(t.clientX, t.clientY); } }, { passive: false });
+    document.addEventListener('touchmove',  e => { if (_cropDrag) { e.preventDefault(); const t = e.touches[0]; moveDrag(t.clientX, t.clientY); } }, { passive: false });
+    document.addEventListener('touchend',   endDrag);
+  })();
+
+  // ── Zoom slider ───────────────────────────────────────────────────────────────
+  document.addEventListener('input', e => {
+    if (e.target.id !== 'crop-zoom' || !_cropImg) return;
+    // Keep canvas centre fixed while zooming
+    const cx = CROP_PRV_W / 2, cy = CROP_PRV_H / 2;
+    const imgCX = (cx - _cropX) / _cropScale;
+    const imgCY = (cy - _cropY) / _cropScale;
+    _cropScale = parseFloat(e.target.value);
+    _cropX = cx - imgCX * _cropScale;
+    _cropY = cy - imgCY * _cropScale;
+    _clampCrop();
+    _drawCrop();
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // PUBLIC SIDEBAR — cache + render
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  async function cachePublicData(tournaments) {
+    // Upcoming events: pending or underway tournaments
+    const upcoming = tournaments
+      .filter(t => t.attributes.state === 'pending' || t.attributes.state === 'underway')
+      .map(t => ({ id: t.id, name: t.attributes.name, state: t.attributes.state, type: t.attributes.tournament_type }));
+    localStorage.setItem('icl_public_events', JSON.stringify(upcoming));
+
+    // Recent match results: fetch from up to 2 most recent active/completed tournaments
+    const active = tournaments
+      .filter(t => t.attributes.state === 'complete' || t.attributes.state === 'underway')
+      .slice(0, 2);
+
+    const allMatches = [];
+    for (const t of active) {
+      try {
+        const [matches, participants] = await Promise.all([
+          Matches.list(t.id),
+          Participants.list(t.id),
+        ]);
+        const pMap = Object.fromEntries(participants.map(p => [String(p.id), p.attributes.name]));
+        matches
+          .filter(m => m.attributes.state === 'complete')
+          .slice(-6) // last 6 completed matches per tournament
+          .forEach(m => {
+            const a  = m.attributes;
+            const p1 = pMap[String(a.player1_id)] || `Player ${a.player1_id}`;
+            const p2 = pMap[String(a.player2_id)] || `Player ${a.player2_id}`;
+            allMatches.push({
+              tournament: t.attributes.name,
+              p1, p2,
+              score:  a.scores_csv || '',
+              winner: a.winner_id ? (pMap[String(a.winner_id)] || null) : null,
+            });
+          });
+      } catch (_) {}
+    }
+    // Keep the 10 most recent across all tournaments
+    localStorage.setItem('icl_public_matches', JSON.stringify(allMatches.slice(-10)));
+  }
+
+  function renderSidebarEvents(events, limit) {
+    const upcomingEl = $('sidebar-upcoming-list');
+    if (!upcomingEl) return;
+    const visible = events.slice(0, limit);
+    upcomingEl.innerHTML = visible.map(e => `
+      <div class="sidebar-item">
+        <div style="font-weight:500; font-size:0.875rem;">${escHtml(e.name)}</div>
+        <div style="display:flex; gap:0.5rem; margin-top:0.3rem; align-items:center;">
+          <span class="badge ${e.state === 'underway' ? 'badge-underway' : 'badge-pending'}">${e.state}</span>
+          ${e.type ? `<span style="color:var(--muted); font-size:0.75rem;">${escHtml(capFirst(e.type))}</span>` : ''}
+        </div>
+      </div>`).join('') +
+      (events.length > limit
+        ? `<div style="margin-top:0.75rem; text-align:center;">
+             <button class="btn btn-outline btn-sm" onclick="showAllSidebarEvents()">View More</button>
+           </div>`
+        : '');
+  }
+
+  window.showAllSidebarEvents = () => {
+    let upcoming = [];
+    try { upcoming = JSON.parse(localStorage.getItem('icl_public_events') || '[]'); } catch {}
+    renderSidebarEvents(upcoming, Infinity);
+  };
+
+  function renderPublicSidebar() {
+    const upcomingEl = $('sidebar-upcoming-list');
+    const matchesEl  = $('sidebar-matches-list');
+    if (!upcomingEl || !matchesEl) return;
+
+    // Upcoming events
+    let upcoming = [];
+    try { upcoming = JSON.parse(localStorage.getItem('icl_public_events') || '[]'); } catch {}
+    if (!upcoming.length) {
+      upcomingEl.innerHTML = `<p style="color:var(--muted); font-size:0.82rem;">No upcoming events.</p>`;
+    } else {
+      renderSidebarEvents(upcoming, 6);
+    }
+
+    // Recent match results
+    let matches = [];
+    try { matches = JSON.parse(localStorage.getItem('icl_public_matches') || '[]'); } catch {}
+    if (!matches.length) {
+      matchesEl.innerHTML = `<p style="color:var(--muted); font-size:0.82rem;">No results yet.</p>`;
+    } else {
+      matchesEl.innerHTML = [...matches].reverse().map(m => `
+        <div class="sidebar-item">
+          <div style="font-size:0.72rem; color:var(--muted); margin-bottom:0.25rem;">${escHtml(m.tournament)}</div>
+          <div style="font-size:0.85rem; display:flex; gap:0.35rem; align-items:baseline; flex-wrap:wrap;">
+            <span style="${m.winner === m.p1 ? 'font-weight:700;color:var(--success)' : 'color:var(--muted)'}">${escHtml(m.p1)}</span>
+            <span style="color:var(--border); font-size:0.72rem;">vs</span>
+            <span style="${m.winner === m.p2 ? 'font-weight:700;color:var(--success)' : 'color:var(--muted)'}">${escHtml(m.p2)}</span>
+          </div>
+          ${m.score ? `<div style="font-size:0.75rem; color:var(--muted); margin-top:0.15rem;">${escHtml(m.score)}</div>` : ''}
+        </div>`).join('');
+    }
+  }
+
+  const NEWS_STORAGE_KEY = 'news_posts';
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function capFirst(str) {
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function loadNews() {
+    try { return JSON.parse(localStorage.getItem(NEWS_STORAGE_KEY) || '[]'); } catch { return []; }
+  }
+
+  function saveNewsToStorage(posts) {
+    localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(posts));
+  }
+
+  function formatNewsDate(iso) {
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  // ── Carousel state ─────────────────────────────────────────────────────────
+  let carouselPosts = [];
+  let carouselIndex = 0;
+  let carouselTimer = null;
+
+  function renderCarouselSlide() {
+    const post = carouselPosts[carouselIndex];
+    if (!post) return;
+    const slide = $('news-carousel-slide');
+    const wrap  = $('news-carousel-wrap');
+    if (!slide || !wrap) return;
+
+    // Apply background image
+    if (post.carouselBg) {
+      wrap.style.backgroundImage = `url('${post.carouselBg}')`;
+      wrap.classList.add('has-bg');
+    } else {
+      wrap.style.backgroundImage = '';
+      wrap.classList.remove('has-bg');
+    }
+
+    slide.innerHTML = `
+      <a href="news-post.html?id=${post.id}" style="text-decoration:none; color:inherit; display:block;">
+        <div class="carousel-post-date">${formatNewsDate(post.date)}</div>
+        <div class="carousel-post-title">${escHtml(post.title)}</div>
+        ${post.description ? `<div class="carousel-post-body">${escHtml(post.description)}</div>` : ''}
+      </a>`;
+    const dotsEl = $('carousel-dots');
+    if (dotsEl) {
+      dotsEl.innerHTML = carouselPosts.map((_, i) =>
+        `<button class="carousel-dot${i === carouselIndex ? ' active' : ''}" onclick="goCarousel(${i})" aria-label="Slide ${i+1}"></button>`
+      ).join('');
+    }
+  }
+
+  function startCarouselTimer() {
+    if (carouselTimer) clearInterval(carouselTimer);
+    if (carouselPosts.length > 1) {
+      carouselTimer = setInterval(() => {
+        carouselIndex = (carouselIndex + 1) % carouselPosts.length;
+        renderCarouselSlide();
+      }, 6000);
+    }
+  }
+
+  window.goCarousel = (i) => { carouselIndex = i; renderCarouselSlide(); startCarouselTimer(); };
+  window.prevCarousel = () => goCarousel((carouselIndex - 1 + carouselPosts.length) % carouselPosts.length);
+  window.nextCarousel = () => goCarousel((carouselIndex + 1) % carouselPosts.length);
+
+  // ── Public news (landing page) ─────────────────────────────────────────────
+  function renderPublicNews() {
+    const posts = loadNews().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const carouselWrap = $('news-carousel-wrap');
+    const cardsWrap    = $('news-cards-wrap');
+    if (!carouselWrap || !cardsWrap) return;
+
+    if (!posts.length) {
+      carouselWrap.classList.add('hidden');
+      cardsWrap.classList.add('hidden');
+      return;
+    }
+
+    // Carousel — featured posts only; fall back to 5 most recent if none are featured
+    const featuredPosts = posts.filter(p => p.featured);
+    carouselPosts = (featuredPosts.length ? featuredPosts : posts).slice(0, 5);
+    carouselIndex = 0;
+    carouselWrap.classList.remove('hidden');
+    renderCarouselSlide();
+    startCarouselTimer();
+
+    // Cards — up to 8 most recent; "View More" appears if there are additional posts
+    cardsWrap.classList.remove('hidden');
+    renderNewsCards(posts, 8);
+    renderPublicSidebar();
+  }
+
+  function renderNewsCards(posts, limit) {
+    const visible = posts.slice(0, limit);
+    $('news-cards-grid').innerHTML = visible.map(p => `
+      <a href="news-post.html?id=${p.id}" class="news-card-preview" style="text-decoration:none; color:inherit;">
+        <div class="news-card-date">${formatNewsDate(p.date)}</div>
+        <div class="news-card-title">${escHtml(p.title)}</div>
+        <div class="news-card-body">${escHtml(p.description || (p.body.length > 200 ? p.body.slice(0,200) + '…' : p.body))}</div>
+      </a>`).join('');
+    const moreWrap = $('news-view-more-wrap');
+    if (moreWrap) moreWrap.style.display = posts.length > limit ? 'block' : 'none';
+  }
+
+  window.showAllNewsCards = () => {
+    const posts = loadNews().sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderNewsCards(posts, Infinity);
+  };
+
+  // ── Manager news tab ────────────────────────────────────────────────────────
+  function renderManagerNews() {
+    const posts = loadNews().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const container = $('news-posts-list');
+    if (!container) return;
+    if (!posts.length) {
+      container.innerHTML = `<p style="color:var(--muted); padding:1rem 0;">No posts yet.</p>`;
+      return;
+    }
+    container.innerHTML = posts.map(p => `
+      <div class="news-post-full" id="npost-${p.id}">
+        <!-- View mode -->
+        <div id="nview-${p.id}">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+            <div>
+              <div class="news-card-date">${formatNewsDate(p.date)}</div>
+              <strong style="font-size:1rem;">${escHtml(p.title)}</strong>
+              ${p.description ? `<div style="color:var(--muted); font-size:0.82rem; margin-top:0.2rem;">${escHtml(p.description)}</div>` : ''}
+            </div>
+            <div class="actions-row">
+              <button class="btn btn-outline btn-sm" onclick="openNewsEdit('${p.id}')">Edit</button>
+              <button class="btn btn-sm ${p.featured ? 'btn-warning' : 'btn-outline'}" onclick="toggleNewsCarousel('${p.id}')">${p.featured ? '⭐ In Carousel' : 'Add to Carousel'}</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteNewsPost('${p.id}')">Delete</button>
+            </div>
+          </div>
+          <p style="color:var(--muted); font-size:0.875rem; white-space:pre-wrap; margin:0 0 0.75rem;">${escHtml(p.body)}</p>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            ${p.carouselBg
+              ? `<img src="${p.carouselBg}" style="height:52px; border-radius:0.35rem; object-fit:cover; border:1px solid var(--border);" title="Carousel background" />
+                 <button class="btn btn-outline btn-sm" onclick="document.getElementById('nbg-${p.id}').click()">Change bg</button>
+                 <button class="btn btn-outline btn-sm" onclick="removeNewsBg('${p.id}')">Remove bg</button>`
+              : `<button class="btn btn-outline btn-sm" onclick="document.getElementById('nbg-${p.id}').click()">Set carousel bg image</button>`}
+            <input type="file" id="nbg-${p.id}" accept="image/*" style="display:none;" onchange="setNewsBg('${p.id}', this)" />
+          </div>
+        </div>
+        <!-- Edit mode (hidden by default) -->
+        <div id="nedit-${p.id}" style="display:none;">
+          <div class="field">
+            <label>Title *</label>
+            <input type="text" id="nedit-title-${p.id}" value="${escHtml(p.title)}" />
+          </div>
+          <div class="field">
+            <label>Brief Description</label>
+            <input type="text" id="nedit-desc-${p.id}" value="${escHtml(p.description || '')}" placeholder="Optional" />
+          </div>
+          <div class="field">
+            <label>Content *</label>
+            <textarea id="nedit-body-${p.id}" rows="6" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:0.5rem; padding:0.5rem 0.75rem; color:var(--text); font-size:0.875rem; resize:vertical;">${escHtml(p.body)}</textarea>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="saveNewsEdit('${p.id}')">Save</button>
+            <button class="btn btn-outline btn-sm" onclick="closeNewsEdit('${p.id}')">Cancel</button>
+            <span class="status-msg" id="nedit-status-${p.id}"></span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  window.deleteNewsPost = (id) => {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    saveNewsToStorage(loadNews().filter(p => p.id !== id));
+    renderManagerNews();
+    setStatus($('news-status'), 'Post deleted.', 'ok');
+  };
+
+  window.openNewsEdit = (id) => {
+    document.getElementById(`nview-${id}`).style.display = 'none';
+    document.getElementById(`nedit-${id}`).style.display = 'block';
+  };
+
+  window.closeNewsEdit = (id) => {
+    document.getElementById(`nedit-${id}`).style.display = 'none';
+    document.getElementById(`nview-${id}`).style.display = 'block';
+  };
+
+  window.saveNewsEdit = (id) => {
+    const title = document.getElementById(`nedit-title-${id}`).value.trim();
+    const desc  = document.getElementById(`nedit-desc-${id}`).value.trim();
+    const body  = document.getElementById(`nedit-body-${id}`).value.trim();
+    const statusEl = document.getElementById(`nedit-status-${id}`);
+    if (!title || !body) { setStatus(statusEl, 'Title and content are required.', 'error'); return; }
+    const posts = loadNews();
+    const post  = posts.find(p => p.id === id);
+    if (!post) return;
+    post.title       = title;
+    post.description = desc;
+    post.body        = body;
+    saveNewsToStorage(posts);
+    renderManagerNews();
+    setStatus($('news-status'), 'Post updated.', 'ok');
+  };
+
+  window.toggleNewsCarousel = (id) => {
+    const posts = loadNews();
+    const post  = posts.find(p => p.id === id);
+    if (!post) return;
+    post.featured = !post.featured;
+    saveNewsToStorage(posts);
+    renderManagerNews();
+  };
+
+  window.removeNewsBg = (id) => {
+    const posts = loadNews();
+    const post  = posts.find(p => p.id === id);
+    if (!post) return;
+    delete post.carouselBg;
+    saveNewsToStorage(posts);
+    renderManagerNews();
+  };
+
+  window.setNewsBg = (id, input) => {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = ''; // reset so re-selecting same file still fires change
+    openCropModal(file, dataUrl => {
+      const posts = loadNews();
+      const post  = posts.find(p => p.id === id);
+      if (!post) return;
+      post.carouselBg = dataUrl;
+      saveNewsToStorage(posts);
+      renderManagerNews();
+    });
+  };
+
+  let _pendingBgDataUrl = null;
+
+  window.clearNewsBgPreview = () => {
+    _pendingBgDataUrl = null;
+    $('news-bg-input').value = '';
+    $('news-bg-preview').style.display = 'none';
+  };
+
+  if ($('publish-news-btn')) {
+    // Open crop modal when a bg image is selected in the create form
+    $('news-bg-input').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) { _pendingBgDataUrl = null; $('news-bg-preview').style.display = 'none'; return; }
+      openCropModal(file, dataUrl => {
+        _pendingBgDataUrl = dataUrl;
+        $('news-bg-preview-img').src = dataUrl;
+        $('news-bg-preview').style.display = 'block';
+        $('news-bg-input').value = ''; // reset so re-selecting the same file still fires change
+      });
+    });
+
+    $('publish-news-btn').addEventListener('click', () => {
+      const title    = $('news-title').value.trim();
+      const body     = $('news-body').value.trim();
+      const description = $('news-description').value.trim();
+      const featured = $('news-featured').checked;
+      if (!title || !body) { setStatus($('news-status'), 'Title and content are required.', 'error'); return; }
+
+      const posts = loadNews();
+      const post = { id: crypto.randomUUID(), title, description, body, date: new Date().toISOString(), featured };
+      if (_pendingBgDataUrl) post.carouselBg = _pendingBgDataUrl;
+      posts.unshift(post);
+      saveNewsToStorage(posts);
+      $('news-title').value = '';
+      $('news-description').value = '';
+      $('news-body').value  = '';
+      $('news-featured').checked = false;
+      _pendingBgDataUrl = null;
+      $('news-bg-input').value = '';
+      $('news-bg-preview').style.display = 'none';
+      setStatus($('news-status'), 'Post published!', 'ok');
+      renderManagerNews();
+    });
+  }
+
+  // ── Participant news tab ────────────────────────────────────────────────────
+  function renderParticipantNews() {
+    const posts = loadNews().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const container = $('p-news-list');
+    if (!container) return;
+    if (!posts.length) {
+      container.innerHTML = `<div class="card"><p style="color:var(--muted); text-align:center; padding:2rem;">No news posts yet.</p></div>`;
+      return;
+    }
+    container.innerHTML = posts.map(p => `
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="news-card-date">${formatNewsDate(p.date)}</div>
+        <h3 style="font-size:1.05rem; margin:0.35rem 0 0.75rem;">${escHtml(p.title)}</h3>
+        <p style="color:var(--muted); font-size:0.875rem; white-space:pre-wrap; margin:0;">${escHtml(p.body)}</p>
+      </div>`).join('');
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // INIT
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  async function init() {
+    // participant_mode  — one-shot flag set just before the OAuth redirect; cleared after first use
+    // participant_active — persistent flag set after successful login; survives Ctrl+R until logout
+    const participantMode   = sessionStorage.getItem('participant_mode');
+    const participantActive = sessionStorage.getItem('participant_active');
+    const hasValidToken     = ChallongeAuth.isLoggedIn();
+
+    // Purge any previously stored hash-based fallback identity (e.g. "Participant-ZXLKAGJH")
+    // that was created before this stricter check was in place.
+    const storedUsername = localStorage.getItem('p_last_username');
+    if (storedUsername && storedUsername.startsWith('Participant-')) {
+      localStorage.removeItem('p_last_username');
+      sessionStorage.removeItem('participant_active');
+    }
+
+    const isParticipant = (participantMode || participantActive) && hasValidToken;
+
+    // ── Participant path ────────────────────────────────────────────────────────
+    if (isParticipant) {
+      // Show the portal frame immediately (synchronously) so there is never a
+      // blank page or login flash while async username resolution runs.
+      hide($('login-section'));
+      hide($('participant-section'));
+      hide($('login-menu'));
+      hide($('user-info'));
+      show($('participant-app'));
+      show($('participant-info'));
+      $('participant-name-display').textContent = 'Loading…';
+      $('participant-team-display').textContent = '';
+
+      try {
+        let username;
+
+        if (participantMode) {
+          // ── Fresh OAuth flow: must resolve a real Challonge username ──────────
+          const token = sessionStorage.getItem('challonge_access_token');
+          if (!token) throw new Error('No access token after OAuth flow.');
+
+          const me = await User.getMe();
+          if (me?.attributes?.username) username = me.attributes.username;
+
+          if (!username) {
+            // Could not verify identity — reject login entirely
+            throw new Error(
+              'Could not verify your Challonge account. ' +
+              'Please ensure you are signed into Challonge and try again.'
+            );
+          }
+
+          // Store the verified username so page reloads can skip the API call
+          localStorage.setItem('p_last_username', username);
+          sessionStorage.setItem('participant_active', 'true');
+          sessionStorage.removeItem('participant_mode');
+          sessionStorage.removeItem('participant_team_name');
+
+        } else {
+          // ── Page reload (Ctrl+R) — reuse the verified username from last login ─
+          username = localStorage.getItem('p_last_username');
+          if (!username) throw new Error('Session expired. Please log in again.');
+        }
+
+        // Prefer a team keyed directly by username; fall back to a team where
+        // this user has been designated captain by a manager.
+        if (participantTeams[username]) {
+          participantTeamName = username;
+        } else {
+          const captainEntry = Object.entries(participantTeams)
+            .find(([, t]) => t.captainUsername === username);
+          if (captainEntry) {
+            participantTeamName = captainEntry[0];
+          } else {
+            participantTeamName = username;
+            participantTeams[username] = { name: username, players: [], color: '#1c7ed6' };
+            saveParticipantData();
+          }
+        }
+
+        $('participant-name-display').textContent = username;
+        const teamData = participantTeams[participantTeamName];
+        $('participant-team-display').textContent = `Team: ${teamData?.displayName || participantTeamName}`;
+
+        try {
+          cachedTournaments = await Tournaments.list();
+          renderP_Events();
+        } catch (err) {
+          console.error('Failed to load events:', err);
+        }
+        renderP_TeamProfile();
+        renderP_Roster();
+        renderP_Signups();
+  
+        return;
+
+      } catch (err) {
+        console.error('Participant session error:', err);
+        sessionStorage.removeItem('participant_mode');
+        sessionStorage.removeItem('participant_active');
+        sessionStorage.removeItem('participant_team_name');
+        localStorage.removeItem('p_last_username');
+        ChallongeAuth.logout();
+        hide($('participant-app'));
+        hide($('participant-info'));
+        hide($('login-section'));
+        show($('login-menu'));
+        // Show the participant login section with the error message
+        show($('participant-section'));
+        $('participant-login-error').textContent = err.message;
+        return;
+      }
+    }
+
+    // ── Non-participant path ────────────────────────────────────────────────────
+    sessionStorage.removeItem('participant_team_name');
+    participantTeamName = null;
+
+    if (!hasValidToken) {
+      show($('login-section'));
+      hide($('participant-section'));
+      show($('login-menu'));
+      hide($('user-info'));
+      hide($('participant-info'));
+      renderPublicNews();
+      renderPublicSidebar();
+      return;
+    }
+
+    // ── Manager is logged in ────────────────────────────────────────────────────
+    hide($('login-section'));
+    hide($('participant-section'));
+    hide($('login-menu'));
+    hide($('participant-info'));
+    show($('app'));
+    show($('user-info'));
+
+    try {
+      const me = await User.getMe();
+      $('username-display').textContent = me?.attributes?.username ?? 'Logged in';
+      show($('username-display'));
+    } catch (_) {}
+
+    loadTournaments();
+  }
+
+  // Close team modal when clicking backdrop
+  $('team-page-modal').addEventListener('click', e => {
+    if (e.target === $('team-page-modal')) closeTeamModal();
+  });
+
+  init();
+
+  // Show logo in header when banner scrolls out of view
+  const headerLogo = $('header-logo');
+  if (headerLogo && $('site-banner')) {
+    new IntersectionObserver(([entry]) => {
+      headerLogo.style.opacity       = entry.isIntersecting ? '0' : '1';
+      headerLogo.style.pointerEvents = entry.isIntersecting ? 'none' : 'auto';
+    }, { threshold: 0 }).observe($('site-banner'));
+  }
+</script>
+
+<footer>
+  <div class="social-links">
+    <a href="https://x.com/ins_league" class="social-link" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      X
+    </a>
+    <a href="https://www.facebook.com/insleague" class="social-link" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Facebook
+    </a>
+    <a href="https://www.twitch.tv/ins_league" class="social-link" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+      Twitch
+    </a>
+    <a href="https://www.instagram.com/ins_league/" class="social-link" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      Instagram
+    </a>
+    <a href="https://www.youtube.com/@insleague" class="social-link" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+      YouTube
+    </a>
+  </div>
+</footer>
+
+</body>
+</html>

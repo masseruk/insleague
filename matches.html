@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matches — Insurgency Community League</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #04295d; --surface: #083a83; --surface-2: #0c4fb3;
+      --border: #2a6ac1; --accent: #1c7ed6; --text: #e8f4ff; --muted: #a9c8e7;
+      --success: #22c55e;
+    }
+    body { font-family: 'Roboto', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; align-items: center; }
+    .header-nav { display: flex; align-items: center; gap: 0.25rem; }
+    .header-nav a { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.4rem 0.75rem; border-radius: 0.4rem; transition: color 0.15s, background 0.15s; }
+    .header-nav a:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+    .header-nav a.active { color: var(--text); }
+    main { max-width: 860px; margin: 2.5rem auto; padding: 0 1.5rem 4rem; }
+    h1 { font-size: 1.6rem; margin-bottom: 1.75rem; }
+    .match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.1rem 1.25rem; margin-bottom: 0.75rem; }
+    .match-tournament { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .match-teams { display: flex; align-items: center; gap: 0.75rem; font-size: 1rem; flex-wrap: wrap; }
+    .match-teams .winner { font-weight: 700; color: var(--success); }
+    .match-teams .loser  { color: var(--muted); }
+    .match-vs { font-size: 0.8rem; color: var(--border); }
+    .match-score { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+    #empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<header>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="news.html">News</a>
+    <a href="events.html">Events</a>
+    <a href="matches.html" class="active">Matches</a>
+  </nav>
+</header>
+<main>
+  <h1>Recent Results</h1>
+  <div id="matches-list"><p id="empty">No results yet.</p></div>
+</main>
+<script>
+  let matches = [];
+  try { matches = JSON.parse(localStorage.getItem('icl_public_matches') || '[]'); } catch {}
+  matches.reverse();
+
+  const list = document.getElementById('matches-list');
+  if (!matches.length) return;
+  list.innerHTML = matches.map(m => {
+    const esc = s => String(s).replace(/</g,'&lt;');
+    const p1Class = m.winner === m.p1 ? 'winner' : 'loser';
+    const p2Class = m.winner === m.p2 ? 'winner' : 'loser';
+    return `
+      <div class="match-card">
+        <div class="match-tournament">${esc(m.tournament)}</div>
+        <div class="match-teams">
+          <span class="${p1Class}">${esc(m.p1)}</span>
+          <span class="match-vs">vs</span>
+          <span class="${p2Class}">${esc(m.p2)}</span>
+        </div>
+        ${m.score ? `<div class="match-score">${esc(m.score)}</div>` : ''}
+      </div>`;
+  }).join('');
+</script>
+</body>
+</html>

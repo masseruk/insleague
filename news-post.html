@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News — Insurgency Community League</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #04295d;
+      --surface:      #083a83;
+      --surface-2:    #0c4fb3;
+      --border:       #2a6ac1;
+      --accent:       #1c7ed6;
+      --accent-hover: #1a6fc3;
+      --text:         #e8f4ff;
+      --muted:        #a9c8e7;
+      --danger:       #ef4444;
+    }
+
+    body { font-family: 'Roboto', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    .header-nav { display: flex; align-items: center; gap: 0.25rem; }
+    .header-nav a { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.4rem 0.75rem; border-radius: 0.4rem; transition: color 0.15s, background 0.15s; }
+    .header-nav a:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+    /* ── Header ── */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 1.2rem; font-weight: 700; }
+    .brand-logo { height: 2rem; width: auto; margin-right: 0.7rem; border-radius: 0.3rem; }
+
+    /* ── Hero ── */
+    #post-hero {
+      width: 100%;
+      min-height: 340px;
+      background: var(--surface);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+    }
+    #post-hero.has-image::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(4,41,93,0.35) 0%, rgba(4,41,93,0.88) 100%);
+    }
+    #post-hero-text {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 2.5rem;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    #post-hero-date { font-size: 0.8rem; color: rgba(255,255,255,0.65); margin-bottom: 0.5rem; }
+    #post-hero-title { font-size: 2rem; font-weight: 700; line-height: 1.25; color: #fff; }
+
+    /* ── Body ── */
+    main { max-width: 860px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+
+    #post-body {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+      margin-top: 1.5rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    #not-found { text-align: center; padding: 5rem 2rem; color: var(--muted); }
+    #not-found h2 { font-size: 1.4rem; margin-bottom: 0.75rem; color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="news.html">News</a>
+    <a href="events.html">Events</a>
+    <a href="matches.html">Matches</a>
+  </nav>
+</header>
+
+<div id="post-hero">
+  <div id="post-hero-text">
+    <div id="post-hero-date"></div>
+    <div id="post-hero-title"></div>
+  </div>
+</div>
+
+<main>
+  <a href="index.html" class="back-link">&#8592; Back to Home</a>
+  <div id="post-description" style="margin-top:1.25rem; font-size:1.1rem; color:var(--muted); line-height:1.6;"></div>
+  <div id="post-body"></div>
+  <div id="not-found" style="display:none;">
+    <h2>Post not found</h2>
+    <p>This news post may have been deleted.</p>
+  </div>
+</main>
+
+<script>
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const id     = params.get('id');
+  let posts    = [];
+  try { posts = JSON.parse(localStorage.getItem('news_posts') || '[]'); } catch {}
+
+  const post = id ? posts.find(p => p.id === id) : null;
+
+  if (!post) {
+    document.getElementById('post-hero').style.display = 'none';
+    document.getElementById('not-found').style.display = 'block';
+  } else {
+    document.title = `${post.title} — Insurgency Community League`;
+
+    // Hero
+    const hero = document.getElementById('post-hero');
+    if (post.carouselBg) {
+      hero.style.backgroundImage = `url('${post.carouselBg}')`;
+      hero.classList.add('has-image');
+    }
+    document.getElementById('post-hero-date').textContent  = formatDate(post.date);
+    document.getElementById('post-hero-title').textContent = post.title;
+
+    // Description
+    if (post.description) {
+      document.getElementById('post-description').textContent = post.description;
+    }
+
+    // Body
+    const bodyEl = document.getElementById('post-body');
+    if (post.description) bodyEl.style.marginTop = '1.5rem';
+    bodyEl.textContent = post.body;
+  }
+</script>
+</body>
+</html>

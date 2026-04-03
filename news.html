@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News — Insurgency Community League</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #04295d; --surface: #083a83; --surface-2: #0c4fb3;
+      --border: #2a6ac1; --accent: #1c7ed6; --text: #e8f4ff; --muted: #a9c8e7;
+    }
+    body { font-family: 'Roboto', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .header-nav { display: flex; align-items: center; gap: 0.25rem; }
+    .header-nav a { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.4rem 0.75rem; border-radius: 0.4rem; transition: color 0.15s, background 0.15s; }
+    .header-nav a:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+    .header-nav a.active { color: var(--text); }
+    main { max-width: 860px; margin: 2.5rem auto; padding: 0 1.5rem 4rem; }
+    h1 { font-size: 1.6rem; margin-bottom: 1.75rem; }
+    .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; margin-bottom: 1.25rem; transition: border-color 0.15s; }
+    .post-card:hover { border-color: var(--accent); }
+    .post-card a { display: block; text-decoration: none; color: inherit; }
+    .post-hero { width: 100%; height: 180px; background: var(--surface); background-size: cover; background-position: center; position: relative; }
+    .post-hero.has-bg::before { content:''; position:absolute; inset:0; background:rgba(4,41,93,0.55); }
+    .post-body { padding: 1.25rem; }
+    .post-date { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .post-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .post-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.55; }
+    #empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<header>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="news.html" class="active">News</a>
+    <a href="events.html">Events</a>
+    <a href="matches.html">Matches</a>
+  </nav>
+</header>
+<main>
+  <h1>News</h1>
+  <div id="posts-list"><p id="empty">No news posts yet.</p></div>
+</main>
+<script>
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  }
+  let posts = [];
+  try { posts = JSON.parse(localStorage.getItem('news_posts') || '[]'); } catch {}
+  posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const list = document.getElementById('posts-list');
+  if (!posts.length) return;
+  list.innerHTML = posts.map(p => `
+    <div class="post-card">
+      <a href="news-post.html?id=${p.id}">
+        ${p.carouselBg
+          ? `<div class="post-hero has-bg" style="background-image:url('${p.carouselBg}');"></div>`
+          : `<div class="post-hero"></div>`}
+        <div class="post-body">
+          <div class="post-date">${formatDate(p.date)}</div>
+          <div class="post-title">${p.title.replace(/</g,'&lt;')}</div>
+          ${p.description ? `<div class="post-desc">${p.description.replace(/</g,'&lt;')}</div>` : ''}
+        </div>
+      </a>
+    </div>`).join('');
+</script>
+</body>
+</html>
